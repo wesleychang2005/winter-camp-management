@@ -409,7 +409,7 @@ async function loadDataAsync(){
 }
 function initAfterLoad(){
   // Add predefined admins
-  const adminEmails = ['wesleychang2005@gmail.com', 'sherly@clc.edu.my', 'gennie@clc.edu.my', 'yitseng@clc.edu.my', 'arisha@clc.edu.my', 'connect@clc.edu.my'];
+  const adminEmails = ['wesleychang2005@gmail.com', 'connect@clc.edu.my'];
   let changed = false;
   adminEmails.forEach(email => {
     let adminT = DATA.teachers.find(t=>t.loginEmail===email);
@@ -1081,7 +1081,7 @@ async function loadUsersList() {
     
     snap.docs.forEach(doc => {
       const u = doc.data();
-      const statusColor = u.status === 'admin' ? 'var(--purple)' : (u.status === 'approved' ? 'var(--green)' : 'var(--amber)');
+      const statusColor = u.status === 'admin' ? 'var(--purple)' : (u.status === 'user' ? 'var(--green)' : 'var(--amber)');
       const dateStr = u.createdAt ? new Date(u.createdAt.toDate()).toLocaleDateString() : 'N/A';
       
       h += `<tr>
@@ -1090,8 +1090,9 @@ async function loadUsersList() {
         <td style="color:var(--muted);">${dateStr}</td>
         <td>`;
       
-      if (u.status === 'pending') h += `<button class="btn sm primary" onclick="updateUserStatus('${doc.id}', 'approved')">Approve</button> `;
-      if (u.status === 'approved') h += `<button class="btn sm danger" onclick="updateUserStatus('${doc.id}', 'pending')">Revoke</button> `;
+      if (u.status === 'pending') h += `<button class="btn sm primary" onclick="updateUserStatus('${doc.id}', 'user')">Approve as User</button> `;
+      if (u.status === 'user') h += `<button class="btn sm" onclick="updateUserStatus('${doc.id}', 'admin')">Make Admin</button> <button class="btn sm danger" onclick="updateUserStatus('${doc.id}', 'pending')">Revoke</button> `;
+      if (u.status === 'admin') h += `<button class="btn sm danger" onclick="updateUserStatus('${doc.id}', 'pending')">Revoke Admin</button> `;
       
       h += `</td></tr>`;
     });
@@ -1399,7 +1400,7 @@ if(BACKEND.isFirebase){
         const userDoc = await userRef.get();
         
         window.lastStep = "determine status";
-        const adminEmails = ['sherly@clc.edu.my', 'gennie@clc.edu.my', 'yitseng@clc.edu.my', 'arisha@clc.edu.my', 'connect@clc.edu.my', 'wesleychang2005@gmail.com'];
+        const adminEmails = ['wesleychang2005@gmail.com', 'connect@clc.edu.my'];
         let status = adminEmails.includes(user.email) ? 'admin' : 'pending';
         
         let needsUpdate = false;
