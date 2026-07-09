@@ -244,8 +244,8 @@ const FirebaseBackend = {
   async init(){
     const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
-    // Enable offline persistence for mobile/flaky connections
-    try { await db.enablePersistence({synchronizeTabs:true}); } catch(e){ console.warn('Persistence failed:',e); }
+    // Disabled persistence to prevent hanging in iframes/incognito
+    // try { await db.enablePersistence({synchronizeTabs:true}); } catch(e){ console.warn('Persistence failed:',e); }
   },
   async loadAsync(){
     const data = {};
