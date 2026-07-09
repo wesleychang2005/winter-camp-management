@@ -7,9 +7,9 @@ function IndexPage(props) {
     <>
       <Meta />
       <HeroSection
-        title="English Camp Management System"
-        subtitle="Streamline your camp operations. Manage students, classes, and daily observations in one unified platform designed for teachers."
-        strapline=""
+        title="Welcome to CLC Language Center"
+        subtitle="God bless you! Step into a vibrant world of language learning. Join our diverse community of students and master new languages with ease."
+        strapline="Your journey starts here"
         size="lg"
         bgColor="bg-white"
         bgImage=""

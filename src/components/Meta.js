@@ -9,9 +9,9 @@ function Meta(props) {
   // Meta values that are the same across all pages
   const globalMeta = {
     // Site name
-    siteName: "My App",
+    siteName: "CLC Language Center",
     // Your production domain (example: https://myapp.com)
-    domain: "",
+    domain: "https://winter-camp-management-4d104.web.app",
     // Your Twitter handle (example: @divjoy)
     twitterHandle: "",
   };
@@ -19,9 +19,9 @@ function Meta(props) {
   // Default meta values for current page (override with props)
   const defaultPageMeta = {
     // Page title
-    title: "My App",
+    title: "CLC Language Center - Empowering Students",
     // Page description
-    description: "My app description",
+    description: "Welcome to CLC Language Center! God bless you! Join our engaging language programs and empower your future.",
     // Social share image (create this file in /public/images/)
     image: "/images/social.png",
     // Page type (see https://ogp.me/#types)

@@ -42,8 +42,8 @@ function HeroSection(props) {
             <div className="absolute rounded-xl bottom-0 left-0 w-32 h-32 bg-teal-200 bg-opacity-50 -mb-10 -ml-10 transform rotate-3" />
             <img
               className="w-full h-96 lg:w-96 lg:h-auto relative object-cover rounded-lg mx-auto shadow-lg"
-              src="https://images.unsplash.com/photo-1577896851231-70ef18881754?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1000&w=800"
-              alt="Students in classroom"
+              src="/student_illustration.png"
+              alt="Students learning languages together at CLC Language Center"
             />
           </div>
         </div>
