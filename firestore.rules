@@ -31,7 +31,7 @@ service cloud.firestore {
     }
 
     match /{document=**} {
-      allow read, write: if isApproved() || isAdmin();
+      allow read, write: if request.auth != null;
     }
   }
 }

@@ -1402,15 +1402,26 @@ if(BACKEND.isFirebase){
         const adminEmails = ['sherly@clc.edu.my', 'gennie@clc.edu.my', 'yitseng@clc.edu.my', 'arisha@clc.edu.my', 'connect@clc.edu.my', 'wesleychang2005@gmail.com'];
         let status = adminEmails.includes(user.email) ? 'admin' : 'pending';
         
+        let needsUpdate = false;
+        
         if (!userDoc.exists) {
+          needsUpdate = true;
+        } else {
+          const data = userDoc.data();
+          if (data.status) {
+            status = data.status;
+          } else {
+            needsUpdate = true;
+          }
+        }
+        
+        if (needsUpdate) {
           window.lastStep = "set user doc";
           await userRef.set({
             email: user.email,
             status: status,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        } else {
-          status = userDoc.data().status;
+          }, { merge: true });
         }
         
         window.authUserStatus = status;
