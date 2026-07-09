@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>English Camp Management</title>
+<style>
+  :root{
+    --teal:#14b8a6; --teal-soft:#ccfbf1; --teal-line:#5eead4; --teal-ink:#0d9488;
+    --purple:#8b5cf6; --purple-soft:#ede9fe;
+    --blue:#3b82f6; --blue-soft:#dbeafe;
+    --green:#22c55e; --green-soft:#dcfce7;
+    --amber:#f59e0b; --amber-soft:#fef3c7;
+    --rose:#f43f5e; --rose-soft:#ffe4e6;
+    --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#f8fafc; --card:#ffffff;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;
+    color:var(--ink);background:var(--bg);font-size:14px;line-height:1.55;}
+  button{font-family:inherit;cursor:pointer;}
+  a{color:var(--teal-ink);}
+
+  /* Top bar */
+  .top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);}
+  .top-in{max-width:1120px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .logo{font-size:17px;font-weight:800;letter-spacing:-.3px;}
+  .logo small{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0;}
+  .who{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);}
+  .who select{padding:6px 9px;border:1px solid var(--line);border-radius:9px;font-size:12px;background:var(--bg);}
+  .camp-sel{padding:6px 9px;border:1px solid var(--line);border-radius:9px;font-size:12px;background:var(--bg);font-weight:700;cursor:pointer;}
+  .camp-sel:focus{border-color:var(--teal);}
+  .nav{max-width:1120px;margin:0 auto;padding:0 22px;display:flex;gap:4px;}
+  .nav button{border:none;background:none;padding:11px 15px 13px;font-size:13.5px;font-weight:700;color:var(--muted);
+    border-bottom:2.5px solid transparent;}
+  .nav button.active{color:var(--teal-ink);border-bottom-color:var(--teal);}
+
+  .ctxbar{max-width:1120px;margin:0 auto;padding:12px 22px 0;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .weeksel{display:flex;gap:4px;align-items:center;}
+  .weeksel .wl{font-size:12px;color:var(--muted);font-weight:700;margin-right:4px;}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;color:var(--muted);}
+  .chip.on{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .daysel{display:flex;gap:4px;}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:18px 22px 70px;}
+  h2.page{font-size:20px;margin:6px 0 3px;letter-spacing:-.3px;}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:16px;}
+
+  /* Cards grid */
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  .ccard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;display:flex;flex-direction:column;gap:10px;}
+  .ccard.upper{border-top:3px solid var(--purple);}
+  .ccard.lower{border-top:3px solid var(--blue);}
+  .ccard .cn{font-size:16px;font-weight:800;}
+  .ccard .lv{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;}
+  .lv.up{background:var(--purple-soft);color:#6d28d9;}
+  .lv.lo{background:var(--blue-soft);color:#1d4ed8;}
+  .ccard .meta{font-size:12.5px;color:var(--muted);}
+  .ccard .foot{display:flex;align-items:center;gap:8px;margin-top:2px;}
+  .badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;}
+  .b-done{background:var(--green-soft);color:#15803d;}
+  .b-plan{background:var(--amber-soft);color:#b45309;}
+  .b-archive{background:var(--line);color:var(--muted);}
+  .btn{padding:9px 15px;border-radius:11px;border:1px solid var(--line);background:#fff;font-weight:700;font-size:13px;color:var(--ink);}
+  .btn:hover{border-color:var(--teal);color:var(--teal-ink);}
+  .btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .btn.primary:hover{background:var(--teal-ink);color:#fff;}
+  .btn.sm{padding:6px 11px;font-size:12px;border-radius:9px;}
+  .btn.danger{color:#dc2626;border-color:#fecaca;}
+  .btn.danger:hover{background:#fef2f2;}
+  .btn.ghost{color:var(--muted);border-color:transparent;}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
+  .ph{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .ph h3{margin:0;font-size:15px;}
+  .pb{padding:16px 18px;}
+
+  .lp-grid{display:grid;grid-template-columns:1fr;gap:12px;}
+  label.fl{display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--ink);}
+  textarea,input[type=text],input[type=number],input[type=tel],input[type=date],select{width:100%;padding:10px 12px;border:1px solid var(--line);
+    border-radius:10px;font-size:13px;font-family:inherit;outline:none;background:#fff;}
+  textarea:focus,input:focus,select:focus{border-color:var(--teal);}
+  textarea{resize:vertical;min-height:56px;}
+  .muted{color:var(--muted);}
+  .small{font-size:12px;}
+
+  /* Student rows in work screen */
+  .stu-work{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+  .stu-work-h{display:flex;align-items:center;gap:11px;padding:11px 14px;background:var(--bg);cursor:pointer;}
+  .av{width:32px;height:32px;border-radius:999px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;background:var(--purple);}
+  .av.blue{background:var(--blue);}
+  .stu-work-h .nm{font-weight:700;}
+  .stu-work-h .tag{font-size:11px;color:var(--muted);}
+  .stu-work-h .sp{flex:1;}
+  .filled-dot{width:9px;height:9px;border-radius:50%;background:var(--line);}
+  .filled-dot.on{background:var(--green);}
+  .stu-work-b{padding:14px;display:none;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .stu-work.open .stu-work-b{display:grid;}
+  .stu-work-b .opt{font-size:10px;color:var(--amber);font-weight:700;}
+  .stu-work-b .req{font-size:10px;color:var(--teal-ink);font-weight:700;}
+  .authorline{font-size:10.5px;color:var(--muted);margin-top:4px;}
+
+  /* Student list */
+  .searchbar{display:flex;gap:10px;margin-bottom:14px;}
+  .searchbar input{flex:1;}
+  .slist{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .srow{display:flex;align-items:center;gap:11px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;}
+  .srow:hover{border-color:var(--teal);}
+  .srow .nm{font-weight:700;}
+  .srow .mt{font-size:12px;color:var(--muted);}
+
+  /* Student card */
+  .sd-head{display:flex;gap:18px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+  .sd-av{width:64px;height:64px;border-radius:16px;background:var(--purple);color:#fff;display:grid;place-items:center;font-size:26px;font-weight:800;flex:none;overflow:hidden;}
+  .sd-av img{width:100%;height:100%;object-fit:cover;}
+  .sd-info{flex:1;}
+  .sd-info h2{margin:0 0 10px;font-size:21px;}
+  .sd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px 22px;}
+  .f .k{font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+  .f .v{font-size:13px;margin-top:1px;white-space:pre-wrap;}
+  .tag2{display:inline-block;background:var(--blue-soft);color:#1d4ed8;border-radius:8px;padding:2px 9px;font-size:12px;font-weight:600;margin:2px 4px 0 0;}
+  .care{background:var(--rose-soft);color:#be123c;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;display:inline-block;margin-top:4px;}
+  .streak{display:inline-block;background:var(--teal-soft);color:var(--teal-ink);border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800;}
+
+  .enr-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:7px;font-size:13px;}
+  .wk{font-weight:800;color:var(--teal-ink);}
+  .obs-week{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+  .obs-week-h{padding:11px 14px;background:var(--bg);font-weight:700;cursor:pointer;display:flex;justify-content:space-between;}
+  .obs-week-b{padding:6px 14px 12px;display:none;}
+  .obs-week.open .obs-week-b{display:block;}
+  .obs-day{padding:8px 0;border-bottom:1px dashed var(--line);}
+  .obs-day:last-child{border-bottom:none;}
+  .obs-day .dd{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:3px;}
+  .obs-day .cm{font-size:12.5px;margin:2px 0;}
+  .obs-day .lab{font-size:10.5px;font-weight:800;color:var(--muted);margin-right:5px;}
+
+  /* Camp cards */
+  .camp-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;cursor:pointer;}
+  .camp-card:hover{border-color:var(--teal);}
+  .camp-card.active-camp{border-color:var(--teal);border-width:2px;background:var(--teal-soft);}
+  .camp-icon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:22px;flex:none;}
+  .camp-icon.summer{background:#fef3c7;}
+  .camp-icon.winter{background:var(--blue-soft);}
+  .camp-icon.spring{background:var(--green-soft);}
+  .camp-card .camp-meta{flex:1;}
+  .camp-card .camp-meta h3{margin:0 0 4px;font-size:16px;}
+  .camp-card .camp-meta .det{font-size:12px;color:var(--muted);}
+
+  /* Modal */
+  .ov{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow:auto;}
+  .ov.show{display:flex;}
+  .modal{background:#fff;border-radius:18px;width:100%;max-width:560px;box-shadow:0 24px 60px rgba(15,23,42,.25);}
+  .modal.wide{max-width:820px;}
+  .mh{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
+  .mh h3{margin:0;font-size:16px;}
+  .mh .x{border:none;background:none;font-size:22px;color:var(--muted);line-height:1;}
+  .mb{padding:18px 20px;}
+  .mf{padding:14px 20px 18px;display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;}
+  .fld{margin-bottom:13px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+
+  .empty{padding:40px 20px;text-align:center;color:var(--muted);}
+  .empty b{display:block;color:var(--ink);font-size:15px;margin-bottom:6px;}
+
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;
+    padding:11px 20px;border-radius:999px;font-size:13px;font-weight:700;transition:transform .25s;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,.2);}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  .preset{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap;}
+  .preset button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 11px;font-size:12px;font-weight:700;color:var(--muted);}
+  .preset button.sel{background:var(--purple);border-color:var(--purple);color:#fff;}
+  .copybox{width:100%;min-height:230px;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;border:1px solid var(--line);border-radius:10px;padding:12px;resize:vertical;background:var(--bg);}
+
+  @media(max-width:820px){
+    .cards,.slist{grid-template-columns:1fr;}
+    .stu-work-b{grid-template-columns:1fr;}
+    .row2,.row3{grid-template-columns:1fr;}
+  }
+</style>
+<!-- Firebase SDK (compat mode for simplicity) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-in">
+    <div class="logo">English Camp Management <small id="campLabel"></small></div>
+    <div class="who">
+      <select id="campSel" class="camp-sel" onchange="switchCamp(this.value)"></select>
+      <span style="margin-left:8px">Logger:</span>
+      <select id="whoSel" onchange="setWho(this.value)"></select>
+    </div>
+  </div>
+  <div class="nav" id="nav"></div>
+  <div class="ctxbar" id="ctxbar"></div>
+</div>
+
+<div class="wrap" id="main"></div>
+
+<div class="ov" id="overlay"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast">Saved</div>
+
+<script>
+/* ============================================================
+   Data Layer
+   ▼▼▼ BACKEND ADAPTER — Firebase Firestore + localStorage fallback ▼▼▼
+   
+   HOW TO CONNECT TO FIREBASE:
+   1. Go to Firebase Console → Project Settings → Your apps → Web app
+   2. Copy your config object and paste it below (replace the placeholder)
+   3. The app will automatically use Firestore instead of localStorage
+   
+   While FIREBASE_CONFIG is null, the app runs in offline/localStorage mode.
+   ============================================================ */
+
+// ▼▼▼ PASTE YOUR FIREBASE CONFIG HERE ▼▼▼
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyD0T0NbVQPTx0UypKYNAojfHxDGZfBfLZs",
+  authDomain: "winter-camp-management-4d104.firebaseapp.com",
+  projectId: "winter-camp-management-4d104",
+  storageBucket: "winter-camp-management-4d104.firebasestorage.app",
+  messagingSenderId: "468322473690",
+  appId: "1:468322473690:web:8b5888674ec5981c6537e3"
+};
+// ▲▲▲ END FIREBASE CONFIG ▲▲▲
+
+const COLLECTIONS = ['camps','teachers','campTeachers','classes','students','enrollments','lessonPlans','observations'];
+
+// ── localStorage Backend (offline / development) ──
+const KEY='camp:data:v2';
+const LocalStorageBackend = {
+  load(){ try{ const r=localStorage.getItem(KEY); return r?JSON.parse(r):null; }catch(e){ return window.__mem||null; } },
+  save(d){ try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(e){ window.__mem=d; } },
+  isFirebase: false
+};
+
+// ── Firebase Firestore Backend ──
+let db = null;
+const FirebaseBackend = {
+  isFirebase: true,
+  async init(){
+    const app = firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    // Enable offline persistence for mobile/flaky connections
+    try { await db.enablePersistence({synchronizeTabs:true}); } catch(e){ console.warn('Persistence failed:',e); }
+  },
+  async loadAsync(){
+    const data = {};
+    for(const col of COLLECTIONS){
+      const snap = await db.collection(col).get();
+      data[col] = snap.docs.map(d => ({id:d.id,...d.data()}));
+    }
+    return data;
+  },
+  async saveCollection(colName, items){
+    const batch = db.batch();
+    // Get existing docs
+    const existing = await db.collection(colName).get();
+    const existingIds = new Set(existing.docs.map(d=>d.id));
+    const newIds = new Set(items.map(i=>i.id));
+    // Delete removed docs
+    existing.docs.forEach(d=>{ if(!newIds.has(d.id)) batch.delete(d.ref); });
+    // Upsert current docs
+    items.forEach(item=>{
+      const {id,...fields} = item;
+      const ref = db.collection(colName).doc(id);
+      batch.set(ref, fields, {merge:true});
+    });
+    await batch.commit();
+  },
+  async saveAll(data){
+    const promises = COLLECTIONS.map(col => {
+      if(data[col]) return this.saveCollection(col, data[col]);
+    });
+    await Promise.all(promises);
+  },
+  // Synchronous wrappers used by the app's save() function
+  load(){ return window.__firebaseData || null; },
+  save(d){ 
+    window.__firebaseData = d;
+    // Debounce writes to Firestore
+    clearTimeout(this._saveTimer);
+    this._saveTimer = setTimeout(()=> this.saveAll(d).catch(e=>console.error('Firebase save error:',e)), 500);
+  }
+};
+
+// ── Select backend ──
+const BACKEND = FIREBASE_CONFIG ? FirebaseBackend : LocalStorageBackend;
+/* ▲▲▲ END Backend Adapter ▲▲▲ */
+
+const DAYS=[['Mon','Mon'],['Tue','Tue'],['Wed','Wed'],['Thu','Thu'],['Fri','Fri']];
+const SEASONS={summer:'☀️',winter:'❄️',spring:'🌸'};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const nowISO=()=>new Date().toISOString();
+const esc=s=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const initial=n=>(n||'?').trim().charAt(0).toUpperCase();
+const getAge=s=>s.birthYear?new Date().getFullYear()-s.birthYear:s.age||'';
+
+/* ---- date helper: derives date from a camp's start_date ---- */
+function dateOf(startDate,week,dayKey){
+  const di=DAYS.findIndex(d=>d[0]===dayKey);
+  const base=new Date(startDate+'T00:00:00');
+  base.setDate(base.getDate()+(week-1)*7+di);
+  return base.toISOString().slice(0,10);
+}
+
+/* ============ State ============ */
+let DATA=null;
+let activeCampId=null; // Currently selected camp
+let view='home';
+let ctx={week:1,day:'Mon'};
+let whoId=null;
+let selStudent=null;
+let workClass=null;
+let enrClass=null;
+
+/* ============ Camp accessor ============ */
+function camp(){ return DATA.camps.find(c=>c.id===activeCampId); }
+function campStudents(){ return DATA.students; }
+function campClasses(){ return DATA.classes.filter(c=>c.campId===activeCampId); }
+function campEnrollments(){ return DATA.enrollments.filter(e=>e.campId===activeCampId); }
+function campLPs(){ return DATA.lessonPlans.filter(l=>l.campId===activeCampId); }
+function campObs(){ return DATA.observations.filter(o=>{ const c=cls(o.classId); return c&&c.campId===activeCampId; }); }
+function campTeachers(){ 
+  const ct=DATA.campTeachers.filter(x=>x.campId===activeCampId);
+  if(!ct.length) return DATA.teachers; // fallback: show all
+  return ct.map(x=>teacher(x.teacherId)).filter(Boolean);
+}
+
+/* ============ Seed Data (Multi-Camp) ============ */
+function seed(){
+  const t1=uid(),t2=uid(),t3=uid();
+  const camp1=uid(), camp2=uid();
+  const c1=uid(),c2=uid(),c3=uid(),c4=uid();
+  const c5=uid(),c6=uid();
+  const teachers=[
+    {id:t1,name:'Seoyeon Lee',loginEmail:'seoyeon@clc.edu'},
+    {id:t2,name:'Jihoon Park',loginEmail:'jihoon@clc.edu'},
+    {id:t3,name:'Emma',loginEmail:'emma@clc.edu'},
+  ];
+  const camps=[
+    {id:camp1,year:2026,season:'summer',label:'2026 Summer Camp',weeks:6,startDate:'2026-07-06',isActive:true},
+    {id:camp2,year:2026,season:'winter',label:'2026 Winter Camp',weeks:4,startDate:'2026-12-21',isActive:false},
+  ];
+  const campTeachers=[
+    {campId:camp1,teacherId:t1,role:'admin'},{campId:camp1,teacherId:t2,role:'teacher'},{campId:camp1,teacherId:t3,role:'teacher'},
+    {campId:camp2,teacherId:t1,role:'admin'},{campId:camp2,teacherId:t3,role:'teacher'},
+  ];
+  const classes=[
+    {id:c1,campId:camp1,subject:'Art Reading',level:'A',name:'Art Reading Class A',teacherId:t1,maxCapacity:8},
+    {id:c2,campId:camp1,subject:'Art Reading',level:'B',name:'Art Reading Class B',teacherId:t2,maxCapacity:8},
+    {id:c3,campId:camp1,subject:'Conversation',level:'A',name:'Conversation Class A',teacherId:t3,maxCapacity:8},
+    {id:c4,campId:camp1,subject:'Conversation',level:'B',name:'Conversation Class B',teacherId:t1,maxCapacity:8},
+    {id:c5,campId:camp2,subject:'Phonics',level:'A',name:'Phonics Class A',teacherId:t1,maxCapacity:8},
+    {id:c6,campId:camp2,subject:'Phonics',level:'B',name:'Phonics Class B',teacherId:t3,maxCapacity:8},
+  ];
+  const s1=uid(),s2=uid(),s3=uid(),s4=uid(),s5=uid(),s6=uid();
+  const students=[
+    {id:s1,name:'Haneul Kim',gender:'Female',age:7,parentContact:'010-1234-5678',parentDisposition:'Very interested in child\'s emotions. Cares if they had fun rather than academic results.',photoUrl:'',siblings:'1 younger brother',careNotes:'Peanut allergy',personality:'Shy, likes drawing',likes:'Animals, stickers',dislikes:'Loud noises',memo:'Quiet at first, but gets active once familiar.',isActive:true},
+    {id:s2,name:'Junseo Lee',gender:'Male',age:6,parentContact:'010-2345-6789',parentDisposition:'Sensitive to academic results (vocabulary and expressions).',photoUrl:'',siblings:'Only child',careNotes:'',personality:'Active, highly competitive',likes:'Dinosaurs, toy cars',dislikes:'Sitting still',memo:'Highly engaged in game-based activities.',isActive:true},
+    {id:s3,name:'Seoyun Park',gender:'Female',age:8,parentContact:'010-3456-7890',parentDisposition:'Balanced. Generally easygoing.',photoUrl:'',siblings:'1 older sister',careNotes:'',personality:'Calm, has leadership qualities',likes:'Reading books, crafting',dislikes:'',memo:'Takes good care of peers.',isActive:true},
+    {id:s4,name:'Minjun Choi',gender:'Male',age:7,parentContact:'010-4567-8901',parentDisposition:'Interested in participation attitude and social skills.',photoUrl:'',siblings:'Twin brother',careNotes:'Asthma (carries inhaler)',personality:'Shy, observant',likes:'Blocks, puzzles',dislikes:'Public speaking',memo:'Quiet but quick to understand.',isActive:true},
+    {id:s5,name:'Yeeun Jung',gender:'Female',age:6,parentContact:'010-5678-9012',parentDisposition:'',photoUrl:'',siblings:'',careNotes:'',personality:'Very affectionate',likes:'Singing, dancing',dislikes:'',memo:'',isActive:true},
+    {id:s6,name:'Doyun Kang',gender:'Male',age:8,parentContact:'010-6789-0123',parentDisposition:'Results-oriented.',photoUrl:'',siblings:'2 older brothers',careNotes:'',personality:'Inquisitive',likes:'Robots, experiments',dislikes:'Repetitive tasks',memo:'',isActive:true},
+  ];
+  const enr=(studentId,classId,week,paid)=>({id:uid(),campId:camp1,studentId,classId,week,paid});
+  const enrollments=[
+    enr(s1,c1,1,true), enr(s1,c1,2,true), enr(s1,c1,3,true),
+    enr(s2,c1,1,false), enr(s3,c2,1,true),
+    enr(s4,c3,1,true), enr(s5,c3,1,false),
+    enr(s6,c4,1,true), enr(s5,c2,2,true),
+  ];
+  const sd=camps[0].startDate;
+  const lp1={id:uid(),campId:camp1,classId:c1,week:1,day:'Mon',date:dateOf(sd,1,'Mon'),
+    content:'Reading animal picture books together',objective:'Say 5 animal names in English',activities:'Animal card matching game, mimicking animal sounds',
+    authorId:t1,createdAt:nowISO(),updatedAt:nowISO()};
+  const lp2={id:uid(),campId:camp1,classId:c3,week:1,day:'Mon',date:dateOf(sd,1,'Mon'),
+    content:'Greetings and self-introductions',objective:'Say "Hi, I\'m ___" with confidence',activities:'Greeting relay with partners',
+    authorId:t3,createdAt:nowISO(),updatedAt:nowISO()};
+  const lessonPlans=[lp1,lp2];
+  const ob=(lp,studentId,o,a,f,author)=>({id:uid(),lessonPlanId:lp.id,classId:lp.classId,week:lp.week,day:lp.day,
+    studentId,objectiveComment:o,activityComment:a,freeComment:f,authorId:author,createdAt:nowISO(),updatedAt:nowISO()});
+  const observations=[
+    ob(lp1,s1,'Hesitant at first, but pronounced "lion" with accurate pronunciation.','','Approached a friend first during break time to share stickers.',t1),
+    ob(lp1,s2,'','Completed 5 matching pairs fastest in the card game.','Highly competitive, pleaded for a second round.',t1),
+  ];
+  return {camps,teachers,campTeachers,classes,students,enrollments,lessonPlans,observations};
+}
+
+/* ============ Load/Save ============ */
+function loadData(){
+  DATA=BACKEND.load();
+  if(!DATA || !DATA.camps){ DATA=seed(); BACKEND.save(DATA); }
+  initAfterLoad();
+}
+async function loadDataAsync(){
+  // Firebase async load
+  await BACKEND.init();
+  DATA = await BACKEND.loadAsync();
+  if(!DATA || !DATA.camps || !DATA.camps.length){
+    DATA=seed();
+    await BACKEND.saveAll(DATA);
+  }
+  window.__firebaseData = DATA;
+  initAfterLoad();
+}
+function initAfterLoad(){
+  // Add predefined admins
+  const adminEmails = ['wesleychang2005@gmail.com', 'sherly@clc.edu.my', 'gennie@clc.edu.my', 'yitseng@clc.edu.my', 'arisha@clc.edu.my', 'connect@clc.edu.my'];
+  let changed = false;
+  adminEmails.forEach(email => {
+    let adminT = DATA.teachers.find(t=>t.loginEmail===email);
+    if(!adminT){
+      const name = email==='wesleychang2005@gmail.com' ? 'Wesley Chang' : initial(email.split('@')[0]) + email.split('@')[0].slice(1);
+      adminT = { id: uid(), name, loginEmail: email, createdAt: nowISO() };
+      DATA.teachers.push(adminT);
+      changed = true;
+    }
+    DATA.camps.forEach(c => {
+      if(!DATA.campTeachers) DATA.campTeachers = [];
+      if(!DATA.campTeachers.find(ct => ct.campId === c.id && ct.teacherId === adminT.id)){
+        DATA.campTeachers.push({ campId: c.id, teacherId: adminT.id, role: 'admin' });
+        changed = true;
+      }
+    });
+  });
+  if(changed) setTimeout(()=>save('Admin user configured'), 1000);
+
+  // Set active camp: prefer the one marked active, else first
+  const ac=DATA.camps.find(c=>c.isActive);
+  activeCampId=ac?ac.id:DATA.camps[0].id;
+  const wesley=DATA.teachers.find(t=>t.loginEmail==='wesleychang2005@gmail.com');
+  whoId=wesley ? wesley.id : DATA.teachers[0].id;
+  // Data migration: migrate global notes to camp-specific profiles
+  DATA.students.forEach(s=>{
+    if(!s.campProfiles) s.campProfiles = {};
+    const cId = s.campId || activeCampId;
+    if(s.personality !== undefined || s.memo !== undefined || s.likes !== undefined || s.dislikes !== undefined || s.careNotes !== undefined || s.parentDisposition !== undefined){
+      s.campProfiles[cId] = {
+        personality: s.personality||'', likes: s.likes||'', dislikes: s.dislikes||'', careNotes: s.careNotes||'', parentDisposition: s.parentDisposition||'', memo: s.memo||''
+      };
+      delete s.personality; delete s.likes; delete s.dislikes; delete s.careNotes; delete s.parentDisposition; delete s.memo;
+    }
+  });
+}
+function save(msg){ BACKEND.save(DATA); toast(msg||'Saved'); }
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');
+  clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1600);}
+
+/* ============ Query Helpers ============ */
+const cls=id=>DATA.classes.find(c=>c.id===id);
+const stu=id=>DATA.students.find(s=>s.id===id);
+const teacher=id=>DATA.teachers.find(t=>t.id===id);
+const tname=id=>{const t=teacher(id);return t?t.name:'—';};
+function enrolledIn(classId,week){ return campEnrollments().filter(e=>e.classId===classId&&e.week===week).map(e=>e.studentId); }
+function studentEnrollments(sid,campOnly){ 
+  const src=campOnly?campEnrollments():DATA.enrollments;
+  return src.filter(e=>e.studentId===sid).sort((a,b)=>a.week-b.week); 
+}
+function findLP(classId,week,day){ return campLPs().find(l=>l.classId===classId&&l.week===week&&l.day===day); }
+function findObs(classId,week,day,sid){ return DATA.observations.find(o=>o.classId===classId&&o.week===week&&o.day===day&&o.studentId===sid); }
+function classOfStudentWeek(sid,week){ const e=campEnrollments().find(x=>x.studentId===sid&&x.week===week); return e?e.classId:null; }
+function paidOfStudentWeek(sid,week){ const e=campEnrollments().find(x=>x.studentId===sid&&x.week===week); return e?e.paid:false; }
+function consecutiveWeeks(sid){
+  const wks=[...new Set(studentEnrollments(sid,true).map(e=>e.week))].sort((a,b)=>a-b);
+  if(!wks.length) return 0;
+  let best=1,run=1;
+  for(let i=1;i<wks.length;i++){ if(wks[i]===wks[i-1]+1){run++;best=Math.max(best,run);} else run=1; }
+  return best;
+}
+function campWeeks(){ return camp()?camp().weeks:6; }
+function campStart(){ return camp()?camp().startDate:'2026-07-06'; }
+
+/* ============ Render Roots ============ */
+function render(){
+  renderTop();
+  renderCtxBar();
+  const m=document.getElementById('main');
+  if(view==='home') m.innerHTML=viewHome();
+  else if(view==='work') m.innerHTML=viewWork();
+  else if(view==='students') m.innerHTML=viewStudents();
+  else if(view==='card') m.innerHTML=viewCard();
+  else if(view==='enroll') m.innerHTML=viewEnroll();
+  else if(view==='report') m.innerHTML=viewReport();
+  else if(view==='stats') m.innerHTML=viewStats();
+  else if(view==='camps') m.innerHTML=viewCamps();
+}
+function go(v){ view=v; window.scrollTo(0,0); render(); }
+
+function renderTop(){
+  const c=camp();
+  document.getElementById('campLabel').textContent=c?c.label+' · '+c.weeks+'-Week Course':'No Camp Selected';
+  // Camp selector dropdown
+  const cs=document.getElementById('campSel');
+  cs.innerHTML=DATA.camps.map(c=>'<option value="'+c.id+'"'+(c.id===activeCampId?' selected':'')+'>'+
+    (SEASONS[c.season]||'')+' '+esc(c.label)+'</option>').join('');
+  // Teacher selector
+  const who=document.getElementById('whoSel');
+  who.innerHTML=DATA.teachers.map(t=>'<option value="'+t.id+'"'+(t.id===whoId?' selected':'')+'>'+esc(t.name)+'</option>').join('');
+  // Nav tabs
+  const nav=document.getElementById('nav');
+  const tabs=[['home','Weekly Home'],['students','Student Roster'],['enroll','Enrollment'],['report','Report Export'],['stats','Stats'],['camps','Camps ⚙']];
+  const activeNav = (view==='work')?'home':(view==='card')?'students':view;
+  nav.innerHTML=tabs.map(t=>'<button class="'+(activeNav===t[0]?'active':'')+'" onclick="go(\''+t[0]+'\')">'+t[1]+'</button>').join('');
+}
+function setWho(id){ whoId=id; }
+function switchCamp(id){ 
+  activeCampId=id; 
+  ctx.week=1; ctx.day='Mon'; 
+  workClass=null; enrClass=null; selStudent=null;
+  if(view==='work') view='home';
+  render(); 
+}
+
+function renderCtxBar(){
+  const bar=document.getElementById('ctxbar');
+  if(view==='home'||view==='work'||view==='report'){
+    const wk=campWeeks();
+    let w='<div class="weeksel"><span class="wl">Week</span>';
+    for(let i=1;i<=wk;i++) w+='<button class="chip '+(ctx.week===i?'on':'')+'" onclick="setWeek('+i+')">Week '+i+'</button>';
+    w+='</div>';
+    let d='';
+    if(view!=='report'){
+      d='<div class="daysel">'+DAYS.map(dd=>'<button class="chip '+(ctx.day===dd[0]?'on':'')+'" onclick="setDay(\''+dd[0]+'\')">'+dd[1]+'</button>').join('')+'</div>';
+    }
+    bar.innerHTML=w+d;
+    bar.style.display='flex';
+  }else{ bar.innerHTML=''; bar.style.display='none'; }
+}
+function setWeek(w){ ctx.week=w; render(); }
+function setDay(d){ ctx.day=d; render(); }
+
+/* ============ ① Home ============ */
+function dayLabel(k){ const d=DAYS.find(x=>x[0]===k); return d?d[1]:k; }
+function viewHome(){
+  const c=camp(); if(!c) return '<div class="empty"><b>No camp selected</b></div>';
+  let h='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px"><div><h2 class="page" style="margin-bottom:4px">'+esc(c.label)+' · Week '+ctx.week+' · '+dayLabel(ctx.day)+'</h2>'
+    +'<div class="sub" style="margin-bottom:0">'+dateOf(campStart(),ctx.week,ctx.day)+' · Click a class to start logging today\'s lessons.</div></div>'
+    +'<button class="btn primary sm" onclick="openAddClass(\''+c.id+'\')">＋ Add Class</button></div>';
+  const classes=campClasses();
+  if(!classes.length){
+    h+='<div class="empty"><b>No classes set up for this camp yet</b><br><button class="btn primary sm" style="margin-top:10px" onclick="openAddClass(\''+c.id+'\')">＋ Add Class</button></div>';
+    return h;
+  }
+  h+='<div class="cards">';
+  classes.forEach(c=>{
+    const n=enrolledIn(c.id,ctx.week).length;
+    const lp=findLP(c.id,ctx.week,ctx.day);
+    const up=c.level==='A';
+    h+='<div class="ccard '+(up?'upper':'lower')+'">'
+      +'<div style="display:flex;align-items:center;gap:8px"><span class="cn">'+esc(c.name)+'</span>'
+        +'<span class="lv '+(up?'up':'lo')+'">'+(up?'Upper':'Lower')+'</span></div>'
+      +'<div class="meta">Teacher: '+esc(tname(c.teacherId))+' · Registered: '+n+' students</div>'
+      +'<div class="foot">'+(lp?'<span class="badge b-done">LP Completed</span>':'<span class="badge b-plan">LP Missing</span>')
+        +'<span style="flex:1"></span>'
+        +'<button class="btn sm" onclick="editClassInline(\''+c.id+'\')">Edit</button>'
+        +'<button class="btn danger sm" onclick="deleteClass(\''+c.id+'\')">Delete</button>'
+        +'<button class="btn primary sm" onclick="openWork(\''+c.id+'\')">Open Log →</button></div>'
+      +'</div>';
+  });
+  h+='</div>';
+  return h;
+}
+function openWork(cid){ workClass=cid; go('work'); }
+
+/* ============ ② Lesson Log ============ */
+function viewWork(){
+  const c=cls(workClass); if(!c) return '';
+  const lp=findLP(c.id,ctx.week,ctx.day)||{content:'',objective:'',activities:''};
+  const ids=enrolledIn(c.id,ctx.week);
+  let h='<button class="btn ghost sm" onclick="go(\'home\')">← Back to Home</button>'
+    +'<h2 class="page" style="margin-top:8px">'+esc(c.name)+' · Week '+ctx.week+' · '+dayLabel(ctx.day)+'</h2>'
+    +'<div class="sub">'+dateOf(campStart(),ctx.week,ctx.day)+' · Teacher: '+esc(tname(c.teacherId))+'</div>';
+
+  h+='<div class="panel"><div class="ph"><h3>Lesson Plan (LP) · Class Common</h3>'
+    +'<span class="small muted">Author: '+esc(tname(c.teacherId))+(lp.updatedAt?' · Updated '+fmtTS(lp.updatedAt):'')+'</span></div>'
+    +'<div class="pb"><div class="lp-grid">'
+    +'<div><label class="fl">Lesson Content</label><textarea id="lp_content">'+esc(lp.content)+'</textarea></div>'
+    +'<div><label class="fl">Learning Objectives</label><textarea id="lp_obj">'+esc(lp.objective)+'</textarea></div>'
+    +'<div><label class="fl">Learning Activities</label><textarea id="lp_act">'+esc(lp.activities)+'</textarea></div>'
+    +'</div><div style="margin-top:12px;text-align:right"><button class="btn primary" onclick="saveLP()">Save LP</button></div></div></div>';
+
+  h+='<div class="panel"><div class="ph"><h3>Student Observations ('+ids.length+' students)</h3>'
+    +'<span class="small muted">Free comments are daily · Objective/Activity comments are optional</span></div><div class="pb">';
+  if(!ids.length){
+    h+='<div class="empty"><b>No students registered in this class for this week</b><button class="btn sm" onclick="go(\'enroll\')">Go to Enrollment</button></div>';
+  }else{
+    ids.map(stu).sort((a,b)=>a.name.localeCompare(b.name,'en')).forEach(s=>{
+      const o=findObs(c.id,ctx.week,ctx.day,s.id);
+      const filled=o&&(o.freeComment||o.objectiveComment||o.activityComment);
+      h+='<div class="stu-work" id="sw_'+s.id+'">'
+        +'<div class="stu-work-h" onclick="toggleSW(\''+s.id+'\')">'
+          +'<span class="av '+(c.level==='A'?'':'blue')+'">'+esc(initial(s.name))+'</span>'
+          +'<span><span class="nm">'+esc(s.name)+'</span> <span class="tag">'+esc(getAge(s))+' yrs · '+esc(s.gender)+'</span></span>'
+          +'<span class="sp"></span>'
+          +(o&&o.authorId?'<span class="small muted">'+esc(tname(o.authorId))+'</span>':'')
+          +'<span class="filled-dot '+(filled?'on':'')+'" title="'+(filled?'Logged':'Unlogged')+'"></span>'
+        +'</div>'
+        +'<div class="stu-work-b">'
+          +'<div><label class="fl">(a) Learning Objective Comment <span class="opt">Optional</span></label><textarea id="o_obj_'+s.id+'">'+esc(o?o.objectiveComment:'')+'</textarea></div>'
+          +'<div><label class="fl">(b) Learning Activity Comment <span class="opt">Optional</span></label><textarea id="o_act_'+s.id+'">'+esc(o?o.activityComment:'')+'</textarea></div>'
+          +'<div><label class="fl">(c) Free Comment <span class="req">Basic</span></label><textarea id="o_free_'+s.id+'">'+esc(o?o.freeComment:'')+'</textarea>'
+            +'<div style="margin-top:8px;text-align:right"><button class="btn primary sm" onclick="saveObs(\''+s.id+'\')">Save</button></div>'
+            +(o&&o.updatedAt?'<div class="authorline">'+esc(tname(o.authorId))+' · '+fmtTS(o.updatedAt)+'</div>':'')
+          +'</div>'
+        +'</div></div>';
+    });
+  }
+  h+='</div></div>';
+  return h;
+}
+function toggleSW(sid){ document.getElementById('sw_'+sid).classList.toggle('open'); }
+function val(id){ const e=document.getElementById(id); return e?e.value:''; }
+
+function saveLP(){
+  const c=cls(workClass);
+  let lp=findLP(c.id,ctx.week,ctx.day);
+  const now=nowISO();
+  if(lp){ lp.content=val('lp_content'); lp.objective=val('lp_obj'); lp.activities=val('lp_act'); lp.updatedAt=now; }
+  else{
+    lp={id:uid(),campId:activeCampId,classId:c.id,week:ctx.week,day:ctx.day,date:dateOf(campStart(),ctx.week,ctx.day),
+      content:val('lp_content'),objective:val('lp_obj'),activities:val('lp_act'),
+      authorId:c.teacherId,createdAt:now,updatedAt:now};
+    DATA.lessonPlans.push(lp);
+  }
+  save('LP Saved'); render();
+}
+function saveObs(sid){
+  const c=cls(workClass); const now=nowISO();
+  let o=findObs(c.id,ctx.week,ctx.day,sid);
+  const lp=findLP(c.id,ctx.week,ctx.day);
+  const o_obj=val('o_obj_'+sid),o_act=val('o_act_'+sid),o_free=val('o_free_'+sid);
+  if(o){ o.objectiveComment=o_obj; o.activityComment=o_act; o.freeComment=o_free; o.authorId=whoId; o.updatedAt=now; }
+  else{
+    o={id:uid(),lessonPlanId:lp?lp.id:null,classId:c.id,week:ctx.week,day:ctx.day,studentId:sid,
+      objectiveComment:o_obj,activityComment:o_act,freeComment:o_free,authorId:whoId,createdAt:now,updatedAt:now};
+    DATA.observations.push(o);
+  }
+  save(stu(sid).name+' Observation Saved'); render();
+  setTimeout(()=>{const el=document.getElementById('sw_'+sid);if(el)el.classList.add('open');},30);
+}
+function fmtTS(iso){ if(!iso)return''; const d=new Date(iso); const p=n=>String(n).padStart(2,'0');
+  return (d.getMonth()+1)+'/'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+
+/* ============ ③ Student Roster ============ */
+let stuQuery='';
+function viewStudents(){
+  const q=stuQuery.toLowerCase();
+  const list=campStudents().filter(s=>s.isActive!==false&&(!q||s.name.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'en'));
+  let h='<h2 class="page">Global Student Directory ('+campStudents().filter(s=>s.isActive!==false).length+' Students)</h2>'
+    +'<div class="sub">This list shows all students across all camps. Profiles are automatically scoped to the active camp.</div>'
+    +'<div class="searchbar"><input type="text" placeholder="Search by name..." value="'+esc(stuQuery)+'" oninput="stuQuery=this.value;renderList()">'
+    +'<button class="btn primary" onclick="openStudentForm()">＋ Add Student</button></div>'
+    +'<div class="slist" id="slist">'+studentRows(list)+'</div>';
+  return h;
+}
+function studentRows(list){
+  if(!list.length) return '<div class="empty" style="grid-column:1/-1"><b>No results found</b></div>';
+  return list.map(s=>{
+    const cw=consecutiveWeeks(s.id), tot=studentEnrollments(s.id,true).length;
+    const prof = (s.campProfiles && s.campProfiles[activeCampId]) || {};
+    return '<div class="srow" onclick="openCard(\''+s.id+'\')">'
+      +'<span class="av">'+esc(initial(s.name))+'</span>'
+      +'<span style="flex:1"><span class="nm">'+esc(s.name)+'</span>'
+        +(prof.careNotes?' <span class="care" style="padding:1px 7px;font-size:10px">⚠ '+esc(prof.careNotes)+'</span>':'')
+        +'<br><span class="mt">'+esc(getAge(s))+' yrs · '+esc(s.gender)+' · '+tot+' enrollments (this camp)'+(cw>1?' · '+cw+' consecutive':'')+'</span></span>'
+      +'</div>';
+  }).join('');
+}
+function renderList(){ const el=document.getElementById('slist'); if(!el)return;
+  const q=stuQuery.toLowerCase();
+  const list=campStudents().filter(s=>s.isActive!==false&&(!q||s.name.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'en'));
+  el.innerHTML=studentRows(list);
+}
+function openCard(sid){ selStudent=sid; go('card'); }
+
+/* ============ ④ Student Card ============ */
+function viewCard(){
+  const s=stu(selStudent); if(!s){go('students');return'';}
+  const cw=consecutiveWeeks(s.id);
+  let h='<button class="btn ghost sm" onclick="go(\'students\')">← Back to Student Roster</button>';
+  h+='<div class="sd-head" style="margin-top:8px"><div class="sd-av">'+(s.photoUrl?'<img src="'+esc(s.photoUrl)+'">':esc(initial(s.name)))+'</div>'
+    +'<div class="sd-info"><h2>'+esc(s.name)+(cw>1?' <span class="streak">'+cw+' Consecutive Weeks</span>':'')+'</h2>'
+    +'<div class="sd-grid">'
+    +field('Gender / Age',esc(s.gender)+' · '+esc(getAge(s))+' yrs')
+    +field('Parent Contact',esc(s.parentContact||'—'))
+    +field('Siblings',esc(s.siblings||'—'))
+    +'</div>';
+  const prof = (s.campProfiles && s.campProfiles[activeCampId]) || {};
+  h+='<div style="margin-top:16px;padding-top:16px;border-top:1px dashed var(--line)"><div class="f"><div class="k" style="color:var(--teal)">Camp Profile ('+esc(camp()?camp().label:'')+')</div></div></div>'
+  h+='<div class="sd-grid" style="margin-top:8px">'
+    +field('Parent Disposition',esc(prof.parentDisposition||'—'))
+    +field('Likes',esc(prof.likes||'—'))
+    +field('Dislikes',esc(prof.dislikes||'—'))
+    +'</div>';
+  if(prof.careNotes) h+='<div style="margin-top:8px"><span class="care">⚠ Special Notes: '+esc(prof.careNotes)+'</span></div>';
+  if(prof.personality) h+='<div style="margin-top:10px"><div class="f"><div class="k">Personality</div>'
+    +prof.personality.split(/[,，\s]+/).filter(Boolean).map(t=>'<span class="tag2">'+esc(t)+'</span>').join('')+'</div></div>';
+  if(prof.memo) h+='<div style="margin-top:8px"><div class="f"><div class="k">Memo</div><div class="v">'+esc(prof.memo)+'</div></div></div>';
+  h+='</div><div style="display:flex;flex-direction:column;gap:8px">'
+    +'<button class="btn sm" onclick="openStudentForm(\''+s.id+'\')">Edit Info</button>'
+    +'<button class="btn sm" onclick="openEnrollStudent(\''+s.id+'\')">＋ Enroll Student</button>'
+    +'<button class="btn danger sm" onclick="delStudent(\''+s.id+'\')">Archive</button>'
+    +'</div></div>';
+
+  // Enrollment History (All camps)
+  const allEnrs=studentEnrollments(s.id,false);
+  h+='<div class="panel"><div class="ph"><h3>Enrollment History</h3></div><div class="pb">';
+  if(!allEnrs.length) h+='<div class="muted small">No enrollment history found.</div>';
+  else{
+    h+='<div style="margin-bottom:10px">';
+    allEnrs.forEach(e=>{ 
+      const c=cls(e.classId); const cmp=DATA.camps.find(x=>x.id===e.campId);
+      h+='<div class="enr-row"><span class="wk">'+esc(cmp?cmp.label:'')+' · Week '+e.week+'</span> · '+esc(c?c.name:'?')
+        +' <span class="'+(e.paid?'b-done':'b-plan')+' badge">'+(e.paid?'Paid':'Free')+'</span></div>';
+    });
+    h+='</div>';
+  }
+  h+='</div></div>';
+
+  // Observation History (All camps)
+  h+='<div class="panel"><div class="ph"><h3>Observation History</h3></div><div class="pb">';
+  const allObs=DATA.observations.filter(o=>o.studentId===s.id);
+  if(!allObs.length) h+='<div class="muted small">No observations recorded yet.</div>';
+  else{
+    const grouped = {};
+    allObs.forEach(o=>{
+      const c=cls(o.classId); const campId=c?c.campId:'';
+      if(!grouped[campId]) grouped[campId]={};
+      if(!grouped[campId][o.week]) grouped[campId][o.week]=[];
+      grouped[campId][o.week].push(o);
+    });
+    Object.keys(grouped).forEach(campId => {
+       const cmp = DATA.camps.find(c=>c.id===campId);
+       const weeks = Object.keys(grouped[campId]).sort((a,b)=>a-b);
+       weeks.forEach(w => {
+         const obs = grouped[campId][w];
+         const classId = obs[0].classId;
+         const sd = cmp ? cmp.startDate : '2026-07-06';
+         const dayObs=DAYS.map(d=>({d,o:obs.find(o=>o.day===d[0])})).filter(x=>x.o&&(x.o.freeComment||x.o.objectiveComment||x.o.activityComment));
+         const domId = 'ow_'+campId+'_'+w;
+         h+='<div class="obs-week" id="'+domId+'"><div class="obs-week-h" onclick="document.getElementById(\''+domId+'\').classList.toggle(\'open\')">'
+           +'<span>'+esc(cmp?cmp.label:'')+' · Week '+w+' · '+esc(cls(classId)?cls(classId).name:'')+'</span><span class="muted small">'+dayObs.length+' days logged ▾</span></div><div class="obs-week-b">';
+         if(!dayObs.length) h+='<div class="muted small" style="padding:8px 0">No records for this week</div>';
+         dayObs.forEach(x=>{
+           h+='<div class="obs-day"><div class="dd">'+dayLabel(x.d[0])+' <span class="muted small" style="font-weight:400">'+dateOf(sd,w,x.d[0])+' · '+esc(tname(x.o.authorId))+'</span></div>';
+           if(x.o.objectiveComment) h+='<div class="cm"><span class="lab">Objective</span>'+esc(x.o.objectiveComment)+'</div>';
+           if(x.o.activityComment) h+='<div class="cm"><span class="lab">Activity</span>'+esc(x.o.activityComment)+'</div>';
+           if(x.o.freeComment) h+='<div class="cm"><span class="lab">Free</span>'+esc(x.o.freeComment)+'</div>';
+           h+='</div>';
+         });
+         h+='</div></div>';
+       });
+    });
+  }
+  h+='</div></div>';
+  return h;
+}
+function field(k,v){return '<div class="f"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';}
+
+/* ============ Student Add/Edit Modal ============ */
+function openStudentForm(id){
+  const s=id?stu(id):{};
+  const prof = (s.campProfiles && s.campProfiles[activeCampId]) || {};
+  openModal(
+    '<div class="mh"><h3>'+(id?'Edit Student Info':'Add Student')+'</h3><button class="x" onclick="closeModal()">×</button></div>'
+    +'<div class="mb">'
+    +'<div class="fld row3"><div><label class="fl">Name *</label><input type="text" id="f_name" value="'+esc(s.name||'')+'"></div>'
+      +'<div><label class="fl">Gender</label><input type="text" id="f_gender" value="'+esc(s.gender||'')+'" placeholder="Female/Male"></div>'
+      +'<div><label class="fl">Birth Year</label><input type="number" id="f_birthYear" value="'+esc(s.birthYear||(s.age?new Date().getFullYear()-s.age:''))+'" placeholder="YYYY"></div></div>'
+    +'<div class="fld"><label class="fl">Parent Contact</label><input type="tel" id="f_contact" value="'+esc(s.parentContact||'')+'"></div>'
+    +'<div class="fld row2"><div><label class="fl">Siblings</label><input type="text" id="f_sib" value="'+esc(s.siblings||'')+'"></div>'
+      +'<div><label class="fl">Photo URL</label><input type="text" id="f_photo" value="'+esc(s.photoUrl||'')+'" placeholder="(Optional)"></div></div>'
+    +'<div style="margin-top:16px;padding-top:16px;border-top:1px dashed var(--line)"><div class="f"><div class="k" style="color:var(--teal)">Camp Profile ('+esc(camp()?camp().label:'')+')</div></div></div>'
+    +'<div class="fld" style="margin-top:10px"><label class="fl">Parent Disposition</label><input type="text" id="f_pd" value="'+esc(prof.parentDisposition||'')+'" placeholder="e.g. Sensitive to results / Cares about emotions"></div>'
+    +'<div class="fld"><label class="fl">Allergies / Special Needs</label><input type="text" id="f_care" value="'+esc(prof.careNotes||'')+'"></div>'
+    +'<div class="fld"><label class="fl">Personality (comma separated)</label><input type="text" id="f_pers" value="'+esc(prof.personality||'')+'" placeholder="e.g. Shy, likes drawing"></div>'
+    +'<div class="fld row2"><div><label class="fl">Likes</label><input type="text" id="f_likes" value="'+esc(prof.likes||'')+'"></div>'
+      +'<div><label class="fl">Dislikes</label><input type="text" id="f_dislikes" value="'+esc(prof.dislikes||'')+'"></div></div>'
+    +'<div class="fld"><label class="fl">Memo</label><textarea id="f_memo">'+esc(prof.memo||'')+'</textarea></div>'
+    +'</div><div class="mf">'
+    +'<button class="btn" onclick="closeModal()">Cancel</button>'
+    +'<button class="btn primary" onclick="saveStudent(\''+(id||'')+'\')">Save</button></div>'
+  );
+}
+function saveStudent(id){
+  const name=val('f_name').trim(); if(!name){alert('Please enter a name.');return;}
+  const by=parseInt(val('f_birthYear'));
+  const obj={name,gender:val('f_gender'),birthYear:by||null,parentContact:val('f_contact'),
+    siblings:val('f_sib'),photoUrl:val('f_photo')};
+  const prof={parentDisposition:val('f_pd'),careNotes:val('f_care'),personality:val('f_pers'),
+    likes:val('f_likes'),dislikes:val('f_dislikes'),memo:val('f_memo')};
+  if(id){ 
+    Object.assign(stu(id),obj); 
+    if(!stu(id).campProfiles) stu(id).campProfiles={};
+    stu(id).campProfiles[activeCampId] = prof;
+    if(by) delete stu(id).age; 
+  }
+  else{ 
+    obj.id=uid(); obj.campProfiles={ [activeCampId]: prof }; obj.isActive=true; 
+    DATA.students.push(obj); selStudent=obj.id; 
+  }
+  save('Student Saved'); closeModal();
+  if(view==='card')render(); else renderList();
+}
+function delStudent(id){
+  if(!confirm('⚠️ Archive this student?\nThey will be hidden from the roster but their data is preserved.\nUse this for students who have left.')) return;
+  const s=stu(id); if(s) s.isActive=false;
+  selStudent=null; save('Student Archived'); go('students');
+}
+
+/* ============ ⑤ Weekly Enrollment ============ */
+function viewEnroll(){
+  const classes=campClasses();
+  if(!enrClass||!classes.find(c=>c.id===enrClass)) enrClass=classes.length?classes[0].id:null;
+  if(!enrClass) return '<div class="empty"><b>No classes in this camp</b><br><button class="btn sm" onclick="go(\'camps\')" style="margin-top:8px">Set up classes</button></div>';
+  let h='<h2 class="page">Weekly Enrollment</h2>'
+    +'<div class="sub">Students can be enrolled in only one class per week. You can add them from the class roster, or enroll individually from their student cards.</div>';
+  h+='<div class="panel"><div class="pb">'
+    +'<div class="row2">'
+    +'<div><label class="fl">Select Class</label><select id="enr_class" onchange="enrClass=this.value;render()">'
+      +classes.map(c=>'<option value="'+c.id+'"'+(c.id===enrClass?' selected':'')+'>'+esc(c.name)+' (Teacher: '+esc(tname(c.teacherId))+')</option>').join('')+'</select></div>'
+    +'<div><label class="fl">Select Week</label><select id="enr_week" onchange="ctx.week=parseInt(this.value);render()">'
+      +Array.from({length:campWeeks()},(_,i)=>i+1).map(w=>'<option value="'+w+'"'+(w===ctx.week?' selected':'')+'>Week '+w+'</option>').join('')+'</select></div>'
+    +'</div></div></div>';
+
+  const c=cls(enrClass);
+  const ids=enrolledIn(enrClass,ctx.week);
+  const cap=c.maxCapacity||8;
+  h+='<div class="panel"><div class="ph"><h3>'+esc(c.name)+' · Week '+ctx.week+' Roster ('+ids.length+'/'+cap+')</h3>'
+    +'<button class="btn primary sm" onclick="openAddToClass()"'+(ids.length>=cap?' disabled':'')+'>＋ Add Student</button></div><div class="pb">';
+  if(!ids.length) h+='<div class="muted small">No students registered yet.</div>';
+  else ids.map(stu).forEach(s=>{
+    const e=campEnrollments().find(x=>x.studentId===s.id&&x.classId===enrClass&&x.week===ctx.week);
+    h+='<div class="enr-row"><span class="av" style="width:26px;height:26px;font-size:11px">'+esc(initial(s.name))+'</span>'
+      +'<span style="flex:1">'+esc(s.name)+' <span class="muted small">'+esc(getAge(s))+' yrs</span></span>'
+      +'<button class="btn sm '+(e.paid?'':'ghost')+'" onclick="togglePaid(\''+e.id+'\')">'+(e.paid?'Paid':'Free')+'</button>'
+      +'<button class="btn danger sm" onclick="removeEnr(\''+e.id+'\')">Remove</button></div>';
+  });
+  h+='</div></div>';
+  return h;
+}
+function togglePaid(eid){ const e=DATA.enrollments.find(x=>x.id===eid); e.paid=!e.paid; save('Changed'); render(); }
+function removeEnr(eid){ if(!confirm('Remove this enrollment?'))return; DATA.enrollments=DATA.enrollments.filter(x=>x.id!==eid); save('Removed'); render(); }
+
+function openAddToClass(){
+  const wk=campWeeks();
+  const already=new Set();
+  campEnrollments().filter(e=>e.week===ctx.week).forEach(e=>already.add(e.studentId));
+  const avail=DATA.students.filter(s=>s.isActive!==false&&!already.has(s.id)).sort((a,b)=>a.name.localeCompare(b.name,'en'));
+  openModal(
+    '<div class="mh"><h3>Enroll in '+esc(cls(enrClass).name)+' · Week '+ctx.week+'</h3><button class="x" onclick="closeModal()">×</button></div>'
+    +'<div class="mb">'
+    +'<div class="fld"><label class="fl">Select Student</label><select id="add_stu">'
+      +(avail.length?avail.map(s=>'<option value="'+s.id+'">'+esc(s.name)+' ('+esc(getAge(s))+' yrs)</option>').join(''):'<option value="">No available students</option>')+'</select>'
+      +'<div class="small muted" style="margin-top:5px">Students already registered in other classes for this week are excluded (one class per week).</div></div>'
+    +'<div class="fld"><label class="fl">Payment Status</label><select id="add_paid"><option value="true">Paid (Package → PDF Report)</option><option value="false">Free (→ Text Message)</option></select></div>'
+    +'<div class="fld"><label class="fl">Enrollment Weeks (Multi-select)</label><div id="add_weeks" style="display:flex;gap:12px;flex-wrap:wrap;padding:8px;border:1px solid var(--line);border-radius:8px">'
+      +Array.from({length:wk},(_,i)=>i+1).map(w=>'<label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" value="'+w+'" '+(w===ctx.week?'checked':'')+'> Week '+w+'</label>').join('')
+    +'</div></div>'
+    +'</div><div class="mf"><button class="btn" onclick="closeModal()">Cancel</button>'
+    +'<button class="btn primary" onclick="doAddToClass()"'+(avail.length?'':' disabled')+'>Enroll</button></div>'
+  );
+}
+function doAddToClass(){
+  const sid=val('add_stu'); if(!sid){closeModal();return;}
+  const paid=val('add_paid')==='true';
+  const cbs = document.querySelectorAll('#add_weeks input[type="checkbox"]:checked');
+  if(!cbs.length){alert('Please select at least one week.');return;}
+  let added=0;
+  cbs.forEach(cb => {
+    const w=parseInt(cb.value);
+    if(DATA.enrollments.some(e=>e.studentId===sid&&e.week===w&&e.campId===activeCampId)) return;
+    DATA.enrollments.push({id:uid(),campId:activeCampId,studentId:sid,classId:enrClass,week:w,paid});
+    added++;
+  });
+  save(added+' week(s) enrolled'); closeModal(); render();
+}
+
+function openEnrollStudent(sid){
+  const s=stu(sid); const wk=campWeeks(); const classes=campClasses();
+  openModal(
+    '<div class="mh"><h3>Enroll '+esc(s.name)+'</h3><button class="x" onclick="closeModal()">×</button></div>'
+    +'<div class="mb">'
+    +'<div class="fld"><label class="fl">Class</label><select id="es_class">'
+      +classes.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('')+'</select></div>'
+    +'<div class="fld"><label class="fl">Enrollment Weeks (Multi-select)</label><div id="es_weeks" style="display:flex;gap:12px;flex-wrap:wrap;padding:8px;border:1px solid var(--line);border-radius:8px">'
+      +Array.from({length:wk},(_,i)=>i+1).map(w=>'<label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" value="'+w+'" '+(w===ctx.week?'checked':'')+'> Week '+w+'</label>').join('')
+    +'</div></div>'
+    +'<div class="fld"><label class="fl">Payment Status</label><select id="es_paid"><option value="true">Paid</option><option value="false">Free</option></select></div>'
+    +'</div><div class="mf"><button class="btn" onclick="closeModal()">Cancel</button>'
+    +'<button class="btn primary" onclick="doEnrollStudent(\''+sid+'\')">Enroll</button></div>'
+  );
+}
+function doEnrollStudent(sid){
+  const classId=val('es_class'); const paid=val('es_paid')==='true';
+  const cbs = document.querySelectorAll('#es_weeks input[type="checkbox"]:checked');
+  if(!cbs.length){alert('Please select at least one week.');return;}
+  let added=0;
+  cbs.forEach(cb => {
+    const w=parseInt(cb.value);
+    if(DATA.enrollments.some(e=>e.studentId===sid&&e.week===w&&e.campId===activeCampId)) return;
+    DATA.enrollments.push({id:uid(),campId:activeCampId,studentId:sid,classId,week:w,paid}); added++;
+  });
+  save(added+' week(s) enrolled'); closeModal(); render();
+}
+
+/* ============ ⑥ Report Export ============ */
+let reportSel=null, emphasis='balanced', customPrompt=null;
+const BASE_PROMPT_HEAD='The following is a child\'s weekly observation log. Please write a warm, concrete, and scene-based progress report for their parents.';
+const EMPHASIS={
+  balanced:'Please balance the learning outcomes and participation attitude.',
+  results:'Please focus specifically on the learning outcomes, such as expressions and vocabulary learned.',
+  engagement:'Please focus specifically on participation attitude, confidence, and social interactions.'
+};
+const BASE_PROMPT_TAIL='Use a warm tone, and keep the length to one or two paragraphs. Focus on moments of growth rather than a score or grade.';
+function currentPrompt(){
+  if(customPrompt!=null) return customPrompt;
+  return BASE_PROMPT_HEAD+'\n'+EMPHASIS[emphasis]+'\n'+BASE_PROMPT_TAIL;
+}
+function viewReport(){
+  const weekStudents=campEnrollments().filter(e=>e.week===ctx.week);
+  let h='<h2 class="page">Report Export · Week '+ctx.week+'</h2>'
+    +'<div class="sub">This app does not make direct AI calls. Copy the structured data + prompt instructions, and paste them into an external AI (Claude, ChatGPT, etc.).</div>';
+  h+='<div class="panel"><div class="ph"><h3>Registered Students This Week</h3></div><div class="pb">';
+  if(!weekStudents.length) h+='<div class="muted small">No students registered this week.</div>';
+  else{
+    h+='<div class="slist">';
+    weekStudents.map(e=>({e,s:stu(e.studentId),c:cls(e.classId)})).forEach(({e,s,c})=>{
+      h+='<div class="srow" onclick="pickReport(\''+s.id+'\')" style="'+(reportSel===s.id?'border-color:var(--teal);background:var(--teal-soft)':'')+'">'
+        +'<span class="av">'+esc(initial(s.name))+'</span>'
+        +'<span style="flex:1"><span class="nm">'+esc(s.name)+'</span><br><span class="mt">'+esc(c.name)+' · '+(e.paid?'Paid → PDF':'Free → Text')+'</span></span></div>';
+    });
+    h+='</div>';
+  }
+  h+='</div></div>';
+
+  if(reportSel){
+    const s=stu(reportSel); const paid=paidOfStudentWeek(s.id,ctx.week);
+    h+='<div class="panel"><div class="ph"><h3>'+esc(s.name)+' · Week '+ctx.week+' Report Data</h3>'
+      +'<span class="badge '+(paid?'b-done':'b-plan')+'">'+(paid?'Paid · PDF Use':'Free · Text Use')+'</span></div><div class="pb">'
+      +'<label class="fl">Prompt Instructions (Editable)</label>'
+      +'<textarea id="rp_prompt" style="min-height:92px" oninput="customPrompt=this.value">'+esc(currentPrompt())+'</textarea>'
+      +'<div class="preset">'
+        +'<button class="'+(emphasis==='results'&&customPrompt==null?'sel':'')+'" onclick="setEmph(\'results\')">Learning Results Focused</button>'
+        +'<button class="'+(emphasis==='engagement'&&customPrompt==null?'sel':'')+'" onclick="setEmph(\'engagement\')">Engagement Focused</button>'
+        +'<button class="'+(emphasis==='balanced'&&customPrompt==null?'sel':'')+'" onclick="setEmph(\'balanced\')">Balanced</button>'
+        +'<span style="flex:1"></span><button onclick="customPrompt=null;render()">Reset Instructions</button>'
+      +'</div>'
+      +'<label class="fl" style="margin-top:10px">Full Copied Content (Instructions + Structured Data)</label>'
+      +'<textarea class="copybox" id="rp_full" readonly>'+esc(buildReportBundle(s))+'</textarea>'
+      +'<div style="margin-top:12px;display:flex;gap:9px;justify-content:flex-end">'
+        +'<button class="btn" onclick="pickReport(null)">Close</button>'
+        +'<button class="btn primary" onclick="copyBundle()">Copy All</button></div>'
+      +'</div></div>';
+  }
+  return h;
+}
+function pickReport(sid){ reportSel=sid; customPrompt=null; render(); if(sid)setTimeout(()=>{const e=document.getElementById('rp_full');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});},50); }
+function setEmph(e){ emphasis=e; customPrompt=null; render(); }
+
+function buildReportBundle(s){
+  const week=ctx.week; const c=cls(classOfStudentWeek(s.id,week));
+  let d='── Instructions ──\n'+currentPrompt()+'\n\n── Observation Data ──\n';
+  d+='Student: '+s.name+' ('+getAge(s)+' yrs / '+s.gender+')';
+  if(s.personality) d+=' · Personality: '+s.personality;
+  d+='\n';
+  if(s.likes||s.dislikes) d+='Likes: '+(s.likes||'—')+' / Dislikes: '+(s.dislikes||'—')+'\n';
+  if(s.parentDisposition) d+='Parent Disposition: '+s.parentDisposition+'\n';
+  d+='Camp: '+camp().label+'\n';
+  d+='Class: '+(c?c.name:'?')+' · Week '+week+(consecutiveWeeks(s.id)>1?' ('+consecutiveWeeks(s.id)+' consecutive weeks)':'')+'\n\n';
+  let any=false;
+  DAYS.forEach(dd=>{
+    const lp=findLP(c?c.id:null,week,dd[0]);
+    const o=findObs(c?c.id:null,week,dd[0],s.id);
+    if(!lp&&!o) return;
+    any=true;
+    d+='■ '+dd[1];
+    if(lp&&lp.date) d+=' ('+lp.date+')';
+    d+='\n';
+    if(lp){
+      if(lp.content) d+='  · Lesson Content: '+lp.content+'\n';
+      if(lp.objective) d+='  · Learning Objective: '+lp.objective+'\n';
+      if(lp.activities) d+='  · Learning Activities: '+lp.activities+'\n';
+    }
+    if(o){
+      if(o.objectiveComment) d+='  · [Objective Comment] '+o.objectiveComment+'\n';
+      if(o.activityComment) d+='  · [Activity Comment] '+o.activityComment+'\n';
+      if(o.freeComment) d+='  · [Free Comment] '+o.freeComment+'\n';
+    }
+    d+='\n';
+  });
+  if(!any) d+='(No records for this week yet.)\n';
+  return d;
+}
+function copyBundle(){
+  const t=document.getElementById('rp_full'); t.focus(); t.select();
+  let ok=false; try{ok=document.execCommand('copy');}catch(e){}
+  if(!ok && navigator.clipboard){ navigator.clipboard.writeText(t.value).then(()=>toast('Copied! Paste into your AI tool.')).catch(()=>toast('Copy failed. Please select and copy manually.')); return; }
+  toast(ok?'Copied! Paste into your AI tool.':'Copy failed. Please select and copy manually.');
+}
+
+/* ============ Stats ============ */
+function viewStats(){
+  let h='<h2 class="page">Statistics</h2><div class="sub">Total student count by camp and by year.</div>';
+  
+  // Group counts by year and camp
+  const countsByYear={};
+  DATA.camps.forEach(c => {
+    if(!countsByYear[c.year]) countsByYear[c.year]=[];
+    const enrolledIds = new Set(DATA.enrollments.filter(e=>e.campId===c.id).map(e=>e.studentId));
+    const numStudents = [...enrolledIds].length;
+    countsByYear[c.year].push({camp:c, count:numStudents});
+  });
+
+  h+='<div class="panel"><div class="pb">';
+  const years = Object.keys(countsByYear).sort((a,b)=>b-a);
+  if(!years.length) h+='<div class="muted small">No data available.</div>';
+  else {
+    years.forEach(y => {
+      h+='<h3 style="margin:20px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px">'+y+'</h3>';
+      countsByYear[y].sort((a,b)=>a.camp.season.localeCompare(b.camp.season)).forEach(item => {
+        h+='<div class="enr-row" style="cursor:pointer" onclick="openStatsStudents(\''+item.camp.id+'\')"><span class="camp-icon sm '+item.camp.season+'" style="width:28px;height:28px;font-size:14px;border-radius:8px;display:inline-grid;place-items:center;margin-right:10px">'+(SEASONS[item.camp.season]||'📅')+'</span>'
+          +'<span style="flex:1;font-weight:700">'+esc(item.camp.label)+'</span>'
+          +'<span class="badge b-done" style="font-size:13px;padding:4px 12px">'+item.count+' Students</span></div>';
+      });
+      const total = countsByYear[y].reduce((sum,item)=>sum+item.count,0);
+      h+='<div style="text-align:right;font-size:13px;color:var(--muted);margin-top:6px">Total for '+y+': <b>'+total+'</b> students</div>';
+    });
+  }
+  h+='</div></div>';
+  return h;
+}
+
+function openStatsStudents(campId){
+  const cp=DATA.camps.find(c=>c.id===campId);
+  const enrolledIds = new Set(DATA.enrollments.filter(e=>e.campId===campId).map(e=>e.studentId));
+  const st=DATA.students.filter(s=>enrolledIds.has(s.id)&&s.isActive!==false).sort((a,b)=>a.name.localeCompare(b.name,'en'));
+  let rows='';
+  if(!st.length) rows='<div class="muted small">No students found.</div>';
+  else st.forEach(s=>{
+    rows+='<div class="enr-row"><span class="av" style="width:26px;height:26px;font-size:11px">'+esc(initial(s.name))+'</span>'
+      +'<span style="flex:1;font-weight:700">'+esc(s.name)+' <span class="muted small" style="font-weight:normal">'+esc(getAge(s))+' yrs · '+esc(s.gender)+'</span></span></div>';
+  });
+  openModal(
+    '<div class="mh"><h3>'+esc(cp.label)+' Students</h3><button class="x" onclick="closeModal()">×</button></div>'
+    +'<div class="mb" style="max-height:60vh;overflow-y:auto">'+rows+'</div>'
+    +'<div class="mf"><button class="btn" onclick="closeModal()">Close</button></div>'
+  );
+}
+
+/* ============ ⑦ Camps Management ============ */
+function viewCamps(){
+  let h='<h2 class="page">Camp Management</h2>'
+    +'<div class="sub">Create and manage camps across years and seasons. Switch between camps using the dropdown above.</div>'
+    +'<div style="display:flex;gap:10px;margin-bottom:16px">'
+    +'<button class="btn primary" onclick="openCampForm()">＋ New Camp</button>'
+    +'<button class="btn" onclick="openDuplicateForm()">📋 Duplicate Current Camp</button>'
+    +'<button class="btn" onclick="openTeacherManager()">👤 Manage Teachers</button>'
+    +'</div>';
+
+  // Camp list
+  DATA.camps.sort((a,b)=>b.year-a.year||a.season.localeCompare(b.season)).forEach(c=>{
+    const numClasses=DATA.classes.filter(x=>x.campId===c.id).length;
+    const numEnr=DATA.enrollments.filter(x=>x.campId===c.id).length;
+    const icon=SEASONS[c.season]||'📅';
+    h+='<div class="camp-card '+(c.id===activeCampId?'active-camp':'')+'" onclick="switchCamp(\''+c.id+'\')">'
+      +'<div class="camp-icon '+c.season+'">'+icon+'</div>'
+      +'<div class="camp-meta"><h3>'+esc(c.label)
+        +(c.id===activeCampId?' <span class="badge b-done">Active</span>':'')
+        +(c.isActive===false?' <span class="badge b-archive">Archived</span>':'')
+      +'</h3>'
+      +'<div class="det">'+c.weeks+' weeks · Starts '+c.startDate+' · '+numClasses+' classes · '+numEnr+' enrollments</div></div>'
+      +'<div style="display:flex;gap:6px;flex-shrink:0" onclick="event.stopPropagation()">'
+        +'<button class="btn sm" onclick="openCampForm(\''+c.id+'\')">Edit</button>'
+        +'<button class="btn sm" onclick="openCampClasses(\''+c.id+'\')">Classes</button>'
+      +'</div>'
+    +'</div>';
+  });
+  return h;
+}
+
+/* ============ Teacher Management ============ */
+function openTeacherManager(){
+  let rows = '';
+  if (!DATA.teachers.length) rows = '<div class="muted small">No teachers registered yet.</div>';
+  else DATA.teachers.forEach(t => {
+    rows += '<div class="enr-row">'
+      + '<span style="flex:1"><b>' + esc(t.name) + '</b> <span class="muted small">(' + esc(t.loginEmail || 'no email') + ')</span></span>'
+      + '<button class="btn sm" onclick="openTeacherForm(\'' + t.id + '\')">Edit</button>'
+      + '</div>';
+  });
+  
+  openModal(
+    '<div class="mh"><h3>Teacher Roster</h3><button class="x" onclick="closeModal()">×</button></div>'
+    + '<div class="mb" id="teacherListModal">' + rows + '</div>'
+    + '<div class="mf"><button class="btn" onclick="closeModal()">Close</button>'
+    + '<button class="btn primary" onclick="openTeacherForm()">＋ Add Teacher</button></div>'
+  , true);
+}
+
+function openTeacherForm(id){
+  const t = id ? DATA.teachers.find(x => x.id === id) : {};
+  openModal(
+    '<div class="mh"><h3>' + (id ? 'Edit Teacher' : 'Add Teacher') + '</h3><button class="x" onclick="closeModal()">×</button></div>'
+    + '<div class="mb">'
+    + '<div class="fld"><label class="fl">Name *</label><input type="text" id="tf_name" value="' + esc(t.name || '') + '"></div>'
+    + '<div class="fld"><label class="fl">Login Email *</label><input type="email" id="tf_email" value="' + esc(t.loginEmail || '') + '" placeholder="e.g. teacher@example.com"></div>'
+    + '</div><div class="mf"><button class="btn" onclick="openTeacherManager()">Back</button>'
+    + '<button class="btn primary" onclick="saveTeacher(\'' + (id || '') + '\')">Save</button></div>'
+  );
+}
+
+function saveTeacher(id){
+  const name = val('tf_name').trim();
+  const loginEmail = val('tf_email').trim().toLowerCase();
+  if (!name || !loginEmail) { alert('Please enter name and email.'); return; }
+  
+  if (id) {
+    const t = DATA.teachers.find(x => x.id === id);
+    if (t) { t.name = name; t.loginEmail = loginEmail; }
+  } else {
+    DATA.teachers.push({ id: uid(), name, loginEmail, createdAt: nowISO() });
+  }
+  
+  save('Teacher Saved');
+  openTeacherManager();
+}
+
+function openCampForm(id){
+  const c=id?DATA.camps.find(x=>x.id===id):{};
+  openModal(
+    '<div class="mh"><h3>'+(id?'Edit Camp':'New Camp')+'</h3><button class="x" onclick="closeModal()">×</button></div>'
+    +'<div class="mb">'
+    +'<div class="fld"><label class="fl">Camp Name *</label><input type="text" id="cf_label" value="'+esc(c.label||'')+'" placeholder="e.g. 2027 Summer Camp"></div>'
+    +'<div class="fld row3">'
+      +'<div><label class="fl">Year</label><input type="number" id="cf_year" value="'+(c.year||new Date().getFullYear())+'"></div>'
+      +'<div><label class="fl">Season</label><select id="cf_season">'
+        +'<option value="summer"'+(c.season==='summer'?' selected':'')+'>☀️ Summer</option>'
+        +'<option value="winter"'+(c.season==='winter'?' selected':'')+'>❄️ Winter</option>'
+        +'<option value="spring"'+(c.season==='spring'?' selected':'')+'>🌸 Spring</option>'
+      +'</select></div>'
+      +'<div><label class="fl">Total Weeks</label><input type="number" id="cf_weeks" value="'+(c.weeks||6)+'" min="1" max="12"></div>'
+    +'</div>'
+    +'<div class="fld"><label class="fl">Start Date (Monday)</label><input type="date" id="cf_start" value="'+(c.startDate||'')+'"></div>'
+    +'</div><div class="mf">'
+    +(id?'<button class="btn danger" onclick="archiveCamp(\''+id+'\')">Archive</button>':'')
+    +'<span style="flex:1"></span>'
+    +'<button class="btn" onclick="closeModal()">Cancel</button>'
+    +'<button class="btn primary" onclick="saveCamp(\''+(id||'')+'\')">Save</button></div>'
+  );
+}
+function saveCamp(id){
+  const label=val('cf_label').trim(); if(!label){alert('Please enter a camp name.');return;}
+  const year=parseInt(val('cf_year'))||new Date().getFullYear();
+  const season=val('cf_season');
+  const weeks=Math.max(1,Math.min(12,parseInt(val('cf_weeks'))||6));
+  const startDate=val('cf_start');
+  if(!startDate){alert('Please select a start date.');return;}
+  if(id){
+    const c=DATA.camps.find(x=>x.id===id);
+    c.label=label; c.year=year; c.season=season; c.weeks=weeks; c.startDate=startDate;
+  }else{
+    const nc={id:uid(),year,season,label,weeks,startDate,isActive:true};
+    DATA.camps.push(nc);
+    activeCampId=nc.id;
+  }
+  save('Camp Saved'); closeModal(); render();
+}
+function archiveCamp(id){
+  if(!confirm('Archive this camp? It will still be visible but marked as archived.')) return;
+  const c=DATA.camps.find(x=>x.id===id);
+  if(c) c.isActive=false;
+  if(activeCampId===id){
+    const next=DATA.camps.find(x=>x.id!==id&&x.isActive!==false);
+    if(next) activeCampId=next.id;
+  }
+  save('Camp Archived'); closeModal(); render();
+}
+
+function openDuplicateForm(){
+  const src=camp();
+  const nextYear=src.season==='winter'?src.year+1:src.year+1;
+  openModal(
+    '<div class="mh"><h3>Duplicate Camp</h3><button class="x" onclick="closeModal()">×</button></div>'
+    +'<div class="mb">'
+    +'<div class="muted small" style="margin-bottom:12px">Creates a new camp by copying the class structure and teacher assignments from <b>'+esc(src.label)+'</b>. No student enrollments or observation data will be copied.</div>'
+    +'<div class="fld"><label class="fl">New Camp Name *</label><input type="text" id="df_label" value="'+nextYear+' '+src.season.charAt(0).toUpperCase()+src.season.slice(1)+' Camp"></div>'
+    +'<div class="fld row3">'
+      +'<div><label class="fl">Year</label><input type="number" id="df_year" value="'+nextYear+'"></div>'
+      +'<div><label class="fl">Season</label><select id="df_season">'
+        +'<option value="summer"'+(src.season==='summer'?' selected':'')+'>☀️ Summer</option>'
+        +'<option value="winter"'+(src.season==='winter'?' selected':'')+'>❄️ Winter</option>'
+        +'<option value="spring"'+(src.season==='spring'?' selected':'')+'>🌸 Spring</option>'
+      +'</select></div>'
+      +'<div><label class="fl">Total Weeks</label><input type="number" id="df_weeks" value="'+src.weeks+'" min="1" max="12"></div>'
+    +'</div>'
+    +'<div class="fld"><label class="fl">Start Date (Monday)</label><input type="date" id="df_start"></div>'
+    +'</div><div class="mf"><button class="btn" onclick="closeModal()">Cancel</button>'
+    +'<button class="btn primary" onclick="doDuplicate()">Duplicate</button></div>'
+  );
+}
+function doDuplicate(){
+  const label=val('df_label').trim(); if(!label){alert('Please enter a name.');return;}
+  const startDate=val('df_start'); if(!startDate){alert('Please select a start date.');return;}
+  const year=parseInt(val('df_year'))||new Date().getFullYear();
+  const season=val('df_season');
+  const weeks=Math.max(1,Math.min(12,parseInt(val('df_weeks'))||6));
+  const newCampId=uid();
+  // Create camp
+  DATA.camps.push({id:newCampId,year,season,label,weeks,startDate,isActive:true});
+  // Copy classes
+  const srcClasses=campClasses();
+  srcClasses.forEach(c=>{
+    DATA.classes.push({id:uid(),campId:newCampId,subject:c.subject,level:c.level,name:c.name,teacherId:c.teacherId,maxCapacity:c.maxCapacity||8});
+  });
+  // Copy camp-teacher assignments
+  const srcCT=DATA.campTeachers.filter(x=>x.campId===activeCampId);
+  srcCT.forEach(ct=>{
+    DATA.campTeachers.push({campId:newCampId,teacherId:ct.teacherId,role:ct.role});
+  });
+  activeCampId=newCampId;
+  save('Camp duplicated — '+srcClasses.length+' classes copied'); closeModal(); render();
+}
+
+/* ============ Camp Classes Management ============ */
+function openCampClasses(campId){
+  const classes=DATA.classes.filter(c=>c.campId===campId);
+  const cp=DATA.camps.find(c=>c.id===campId);
+  let rows='';
+  if(!classes.length) rows='<div class="muted small">No classes yet.</div>';
+  else classes.forEach(c=>{
+    rows+='<div class="enr-row">'
+      +'<span style="flex:1"><b>'+esc(c.name)+'</b> <span class="muted small">'+esc(c.subject)+' · Level '+c.level+' · Teacher: '+esc(tname(c.teacherId))+'</span></span>'
+      +'<button class="btn sm" onclick="editClassInline(\''+c.id+'\')">Edit</button>'
+      +'<button class="btn danger sm" onclick="deleteClass(\''+c.id+'\')">Delete</button>'
+    +'</div>';
+  });
+  openModal(
+    '<div class="mh"><h3>Classes — '+esc(cp.label)+'</h3><button class="x" onclick="closeModal()">×</button></div>'
+    +'<div class="mb" id="classListModal">'+rows+'</div>'
+    +'<div class="mf"><button class="btn" onclick="closeModal()">Close</button>'
+    +'<button class="btn primary" onclick="openAddClass(\''+campId+'\')">＋ Add Class</button></div>'
+  , true);
+}
+
+function openAddClass(campId){
+  openModal(
+    '<div class="mh"><h3>Add Class</h3><button class="x" onclick="closeModal()">×</button></div>'
+    +'<div class="mb">'
+    +'<div class="fld"><label class="fl">Class Name *</label><input type="text" id="ac_name" placeholder="e.g. Art Reading Class A"></div>'
+    +'<div class="fld row3">'
+      +'<div><label class="fl">Subject</label><input type="text" id="ac_subject" placeholder="e.g. Art Reading"></div>'
+      +'<div><label class="fl">Level</label><select id="ac_level"><option value="A">A (Upper)</option><option value="B">B (Lower)</option></select></div>'
+      +'<div><label class="fl">Max Capacity</label><input type="number" id="ac_cap" value="8" min="1"></div>'
+    +'</div>'
+    +'<div class="fld"><label class="fl">Teacher</label><select id="ac_teacher">'
+      +DATA.teachers.map(t=>'<option value="'+t.id+'">'+esc(t.name)+'</option>').join('')+'</select></div>'
+    +'</div><div class="mf"><button class="btn" onclick="if(view===\'home\'){closeModal();}else{openCampClasses(\''+campId+'\');}">Cancel</button>'
+    +'<button class="btn primary" onclick="doAddClass(\''+campId+'\')">Add</button></div>'
+  );
+}
+function doAddClass(campId){
+  const name=val('ac_name').trim(); if(!name){alert('Please enter a class name.');return;}
+  DATA.classes.push({id:uid(),campId,subject:val('ac_subject'),level:val('ac_level'),name,teacherId:val('ac_teacher'),maxCapacity:parseInt(val('ac_cap'))||8});
+  save('Class Added');
+  if(view==='home'){ closeModal(); render(); } else openCampClasses(campId);
+}
+function deleteClass(classId){
+  if(!confirm('Delete this class? All enrollments and data in this class will be lost.')) return;
+  DATA.classes=DATA.classes.filter(c=>c.id!==classId);
+  DATA.enrollments=DATA.enrollments.filter(e=>e.classId!==classId);
+  DATA.lessonPlans=DATA.lessonPlans.filter(l=>l.classId!==classId);
+  DATA.observations=DATA.observations.filter(o=>o.classId!==classId);
+  save('Class Deleted'); render(); closeModal();
+}
+function editClassInline(classId){
+  const c=cls(classId); if(!c)return;
+  openModal(
+    '<div class="mh"><h3>Edit Class</h3><button class="x" onclick="closeModal()">×</button></div>'
+    +'<div class="mb">'
+    +'<div class="fld"><label class="fl">Class Name</label><input type="text" id="ec_name" value="'+esc(c.name)+'"></div>'
+    +'<div class="fld row3">'
+      +'<div><label class="fl">Subject</label><input type="text" id="ec_subject" value="'+esc(c.subject)+'"></div>'
+      +'<div><label class="fl">Level</label><select id="ec_level"><option value="A"'+(c.level==='A'?' selected':'')+'>A (Upper)</option><option value="B"'+(c.level==='B'?' selected':'')+'>B (Lower)</option></select></div>'
+      +'<div><label class="fl">Max Capacity</label><input type="number" id="ec_cap" value="'+(c.maxCapacity||8)+'" min="1"></div>'
+    +'</div>'
+    +'<div class="fld"><label class="fl">Teacher</label><select id="ec_teacher">'
+      +DATA.teachers.map(t=>'<option value="'+t.id+'"'+(t.id===c.teacherId?' selected':'')+'>'+esc(t.name)+'</option>').join('')+'</select></div>'
+    +'</div><div class="mf"><button class="btn" onclick="if(view===\'home\'){closeModal();}else{openCampClasses(\''+c.campId+'\');}">Cancel</button>'
+    +'<button class="btn primary" onclick="doEditClass(\''+classId+'\')">Save</button></div>'
+  );
+}
+function doEditClass(classId){
+  const c=cls(classId); if(!c)return;
+  c.name=val('ec_name').trim()||c.name;
+  c.subject=val('ec_subject');
+  c.level=val('ec_level');
+  c.maxCapacity=parseInt(val('ec_cap'))||8;
+  c.teacherId=val('ec_teacher');
+  save('Class Updated');
+  if(view==='home'){ closeModal(); render(); } else openCampClasses(c.campId);
+}
+
+/* ============ Common Modal ============ */
+const ov=document.getElementById('overlay'), modalEl=document.getElementById('modal');
+function openModal(html,wide){ modalEl.className='modal'+(wide?' wide':''); modalEl.innerHTML=html; ov.classList.add('show');
+  const f=modalEl.querySelector('input,textarea,select'); if(f)setTimeout(()=>f.focus(),50); }
+function closeModal(){ ov.classList.remove('show'); modalEl.innerHTML=''; }
+ov.addEventListener('click',e=>{if(e.target===ov)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+/* ============ Start ============ */
+if(BACKEND.isFirebase){
+  document.getElementById('main').innerHTML='<div class="empty"><b>Connecting to Firebase...</b></div>';
+  loadDataAsync().then(()=>render()).catch(e=>{
+    console.error('Firebase load error:',e);
+    document.getElementById('main').innerHTML='<div class="empty"><b>Firebase connection failed</b><br>'+e.message+'<br><br><button class="btn primary" onclick="location.reload()">Retry</button></div>';
+  });
+}else{
+  loadData();
+  render();
+}
+</script>
+</body>
+</html>
