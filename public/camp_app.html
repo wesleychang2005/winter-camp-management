@@ -1422,13 +1422,7 @@ if(BACKEND.isFirebase){
         } else {
           const data = userDoc.data();
           if (data.status) {
-            if (isAdminEmail && data.status !== 'admin') {
-              // Always enforce admin status for admin emails!
-              status = 'admin';
-              needsUpdate = true;
-            } else {
-              status = data.status;
-            }
+            status = data.status;
           } else {
             needsUpdate = true;
           }
