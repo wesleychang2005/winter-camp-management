@@ -1412,7 +1412,8 @@ if(BACKEND.isFirebase){
         
         window.lastStep = "determine status";
         const adminEmails = ['wesleychang2005@gmail.com', 'connect@clc.edu.my'];
-        let status = adminEmails.includes(user.email) ? 'admin' : 'pending';
+        const isAdminEmail = adminEmails.includes(user.email);
+        let status = isAdminEmail ? 'admin' : 'pending';
         
         let needsUpdate = false;
         
@@ -1421,7 +1422,13 @@ if(BACKEND.isFirebase){
         } else {
           const data = userDoc.data();
           if (data.status) {
-            status = data.status;
+            if (isAdminEmail && data.status !== 'admin') {
+              // Always enforce admin status for admin emails!
+              status = 'admin';
+              needsUpdate = true;
+            } else {
+              status = data.status;
+            }
           } else {
             needsUpdate = true;
           }
