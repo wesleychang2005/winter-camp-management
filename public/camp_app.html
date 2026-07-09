@@ -1326,7 +1326,7 @@ if(BACKEND.isFirebase){
   document.getElementById('main').innerHTML='<div class="empty"><b>Authenticating...</b></div>';
   firebase.auth().onAuthStateChanged(user => {
     if (!user) {
-      window.location.href = '/auth/signin';
+      window.top.location.href = '/auth/signin';
       return;
     }
     window.authUserEmail = user.email;
