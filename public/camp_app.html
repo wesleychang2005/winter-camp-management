@@ -185,7 +185,7 @@
 </head>
 <body>
 
-<div class="top">
+<div class="top" id="topBar">
   <div class="top-in">
     <div class="logo">English Camp Management <small id="campLabel"></small></div>
     <div class="who">
@@ -494,6 +494,7 @@ function render(){
   else if(view==='report') m.innerHTML=viewReport();
   else if(view==='stats') m.innerHTML=viewStats();
   else if(view==='camps') m.innerHTML=viewCamps();
+  else if(view==='users') m.innerHTML=viewUsers();
 }
 function go(v){ view=v; window.scrollTo(0,0); render(); }
 
@@ -511,6 +512,7 @@ function renderTop(){
   // Nav tabs
   const nav=document.getElementById('nav');
   const tabs=[['home','Weekly Home'],['students','Student Roster'],['enroll','Enrollment'],['report','Report Export'],['stats','Stats'],['camps','Camps ⚙']];
+  if (window.authUserStatus === 'admin') tabs.push(['users', 'Users 👤']);
   const activeNav = (view==='work')?'home':(view==='card')?'students':view;
   nav.innerHTML=tabs.map(t=>'<button class="'+(activeNav===t[0]?'active':'')+'" onclick="go(\''+t[0]+'\')">'+t[1]+'</button>').join('');
 }
@@ -1060,6 +1062,59 @@ function openStatsStudents(campId){
   );
 }
 
+/* ============ User Management (Admin Only) ============ */
+function viewUsers() {
+  if (window.authUserStatus !== 'admin') return '<div class="empty"><b>Access Denied</b></div>';
+  setTimeout(loadUsersList, 0);
+  return '<h2 class="page">User Approvals</h2>'
+    +'<div class="sub">Approve or revoke access for users trying to use the CRM.</div>'
+    +'<div id="usersContainer" style="margin-top: 16px;"><div class="empty">Loading users...</div></div>';
+}
+
+async function loadUsersList() {
+  const container = document.getElementById('usersContainer');
+  if (!container) return;
+  try {
+    const snap = await db.collection('users').orderBy('createdAt', 'desc').get();
+    let h = '<table class="rtable" style="width:100%;text-align:left;">'
+      + '<thead><tr><th>Email</th><th>Status</th><th>Signed Up</th><th>Actions</th></tr></thead><tbody>';
+    
+    snap.docs.forEach(doc => {
+      const u = doc.data();
+      const statusColor = u.status === 'admin' ? 'var(--purple)' : (u.status === 'approved' ? 'var(--green)' : 'var(--amber)');
+      const dateStr = u.createdAt ? new Date(u.createdAt.toDate()).toLocaleDateString() : 'N/A';
+      
+      h += `<tr>
+        <td style="font-weight:600;">${esc(u.email)}</td>
+        <td><span class="badge" style="background:${statusColor};color:#fff;">${esc(u.status)}</span></td>
+        <td style="color:var(--muted);">${dateStr}</td>
+        <td>`;
+      
+      if (u.status === 'pending') h += `<button class="btn sm primary" onclick="updateUserStatus('${doc.id}', 'approved')">Approve</button> `;
+      if (u.status === 'approved') h += `<button class="btn sm danger" onclick="updateUserStatus('${doc.id}', 'pending')">Revoke</button> `;
+      
+      h += `</td></tr>`;
+    });
+    
+    h += '</tbody></table>';
+    container.innerHTML = h;
+  } catch (e) {
+    console.error('Error loading users:', e);
+    container.innerHTML = '<div class="empty">Failed to load users: ' + e.message + '</div>';
+  }
+}
+
+async function updateUserStatus(userId, status) {
+  if (!confirm(`Are you sure you want to change this user to ${status}?`)) return;
+  try {
+    await db.collection('users').doc(userId).update({ status });
+    toast('User updated');
+    loadUsersList();
+  } catch (e) {
+    alert('Failed to update user: ' + e.message);
+  }
+}
+
 /* ============ ⑦ Camps Management ============ */
 function viewCamps(){
   let h='<h2 class="page">Camp Management</h2>'
@@ -1334,10 +1389,42 @@ if(BACKEND.isFirebase){
     }
     window.authUserEmail = user.email;
     document.getElementById('main').innerHTML='<div class="empty"><b>Connecting to Firebase...</b></div>';
-    loadDataAsync().then(()=>render()).catch(e=>{
-      console.error('Firebase load error:',e);
-      document.getElementById('main').innerHTML='<div class="empty"><b>Firebase connection failed</b><br>'+e.message+'<br><br><button class="btn primary" onclick="location.reload()">Retry</button></div>';
-    });
+    
+    (async () => {
+      try {
+        await FirebaseBackend.init(); // Initialize first!
+        const userRef = db.collection('users').doc(user.uid);
+        const userDoc = await userRef.get();
+        
+        const adminEmails = ['sherly@clc.edu.my', 'gennie@clc.edu.my', 'yitseng@clc.edu.my', 'arisha@clc.edu.my', 'connect@clc.edu.my', 'wesleychang2005@gmail.com'];
+        let status = adminEmails.includes(user.email) ? 'admin' : 'pending';
+        
+        if (!userDoc.exists) {
+          await userRef.set({
+            email: user.email,
+            status: status,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } else {
+          status = userDoc.data().status;
+        }
+        
+        window.authUserStatus = status;
+        
+        if (status === 'pending') {
+          document.getElementById('main').innerHTML = '<div class="empty" style="margin-top: 100px;"><b>Account Pending</b><br><br>Your account is waiting for admin approval.<br>Please check back later.<br><br><button class="btn outline sm" onclick="firebase.auth().signOut()">Sign Out</button></div>';
+          document.getElementById('topBar').style.display = 'none'; // Hide topbar if pending
+          return;
+        }
+        
+        document.getElementById('topBar').style.display = 'block';
+        await loadDataAsync();
+        render();
+      } catch(e) {
+        console.error('Firebase load error:', e);
+        document.getElementById('main').innerHTML='<div class="empty"><b>Firebase connection failed</b><br>'+e.message+'<br><br><button class="btn primary" onclick="location.reload()">Retry</button></div>';
+      }
+    })();
   });
 }else{
   loadData();
