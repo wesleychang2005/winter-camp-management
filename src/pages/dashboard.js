@@ -11,7 +11,7 @@ function DashboardPage(props) {
       <Meta title="Dashboard" />
       <div style={{ height: 'calc(100vh - 65px)' }}>
         <iframe 
-          src="/camp_app.html?v=8" 
+          src="/camp_app.html?v=9" 
           style={{ width: '100%', height: '100%', border: 'none' }} 
           title="Camp Manager"
         />

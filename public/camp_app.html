@@ -1094,7 +1094,7 @@ async function loadUsersList() {
       if (u.status === 'user') h += `<button class="btn sm" onclick="updateUserStatus('${doc.id}', 'admin')">Make Admin</button> <button class="btn sm danger" onclick="updateUserStatus('${doc.id}', 'pending')">Revoke</button> `;
       if (u.status === 'admin') h += `<button class="btn sm danger" onclick="updateUserStatus('${doc.id}', 'pending')">Revoke Admin</button> `;
       
-      h += `</td></tr>`;
+      h += `<button class="btn sm danger outline" style="margin-left:8px;" onclick="deleteUser('${doc.id}')">Delete</button></td></tr>`;
     });
     
     h += '</tbody></table>';
@@ -1113,6 +1113,17 @@ async function updateUserStatus(userId, status) {
     loadUsersList();
   } catch (e) {
     alert('Failed to update user: ' + e.message);
+  }
+}
+
+async function deleteUser(userId) {
+  if (!confirm(`Are you sure you want to permanently delete this user's profile and CRM access?`)) return;
+  try {
+    await db.collection('users').doc(userId).delete();
+    toast('User deleted');
+    loadUsersList();
+  } catch (e) {
+    alert('Failed to delete user: ' + e.message);
   }
 }
 
