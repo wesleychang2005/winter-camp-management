@@ -242,7 +242,7 @@ let db = null;
 const FirebaseBackend = {
   isFirebase: true,
   async init(){
-    const app = firebase.initializeApp(FIREBASE_CONFIG);
+    const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
     // Enable offline persistence for mobile/flaky connections
     try { await db.enablePersistence({synchronizeTabs:true}); } catch(e){ console.warn('Persistence failed:',e); }
@@ -1323,6 +1323,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 /* ============ Start ============ */
 if(BACKEND.isFirebase){
+  if (!firebase.apps.length) {
+    firebase.initializeApp(FIREBASE_CONFIG);
+  }
   document.getElementById('main').innerHTML='<div class="empty"><b>Authenticating...</b></div>';
   firebase.auth().onAuthStateChanged(user => {
     if (!user) {
