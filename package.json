@@ -6,28 +6,29 @@
     "divjoy"
   ],
   "dependencies": {
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "next": "12.2.5",
-    "react-hook-form": "6.15.1",
-    "tailwindcss": "3.3.3",
-    "@tailwindcss/typography": "0.5.10",
+    "@analytics/google-analytics": "1.0.7",
     "@headlessui/react": "1.7.17",
     "@heroicons/react": "2.0.18",
     "@tailwindcss/aspect-ratio": "0.4.2",
     "@tailwindcss/forms": "0.5.6",
-    "postcss": "8.4.31",
-    "autoprefixer": "10.4.16",
-    "query-string": "6.13.8",
-    "firebase": "9.1.0",
-    "react-query": "3.32.1",
+    "@tailwindcss/typography": "0.5.10",
     "analytics": "0.8.9",
-    "@analytics/google-analytics": "1.0.7",
-    "mailchimp-api-v3": "1.14.0"
+    "autoprefixer": "10.4.16",
+    "firebase": "9.1.0",
+    "mailchimp-api-v3": "1.14.0",
+    "next": "^13.5.6",
+    "postcss": "8.4.31",
+    "query-string": "6.13.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "6.15.1",
+    "react-query": "3.32.1",
+    "tailwindcss": "3.3.3"
   },
   "scripts": {
     "dev": "node -e \"const b=require('buffer');b.SlowBuffer=function(){};b.SlowBuffer.prototype={equal:function(){}};process.argv.push('dev');require('./node_modules/next/dist/bin/next')\"",
     "build": "node -e \"const b=require('buffer');b.SlowBuffer=function(){};b.SlowBuffer.prototype={equal:function(){}};process.argv.push('build');require('./node_modules/next/dist/bin/next')\"",
-    "start": "node -e \"const b=require('buffer');b.SlowBuffer=function(){};b.SlowBuffer.prototype={equal:function(){}};process.argv.push('start');require('./node_modules/next/dist/bin/next')\""
+    "start": "node -e \"const b=require('buffer');b.SlowBuffer=function(){};b.SlowBuffer.prototype={equal:function(){}};process.argv.push('start');require('./node_modules/next/dist/bin/next')\"",
+    "export": "npm run build && node -e \"const b=require('buffer');b.SlowBuffer=function(){};b.SlowBuffer.prototype={equal:function(){}};process.argv.push('export');require('./node_modules/next/dist/bin/next')\""
   }
 }

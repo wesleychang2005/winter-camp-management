@@ -190,8 +190,8 @@
     <div class="logo">English Camp Management <small id="campLabel"></small></div>
     <div class="who">
       <select id="campSel" class="camp-sel" onchange="switchCamp(this.value)"></select>
-      <span style="margin-left:8px">Logger:</span>
-      <select id="whoSel" onchange="setWho(this.value)"></select>
+      <span style="margin-left:12px; margin-right: 12px; font-weight: bold; font-size: 13px;" id="loggerName"></span>
+      <button class="btn sm" onclick="firebase.auth().signOut()">Sign Out</button>
     </div>
   </div>
   <div class="nav" id="nav"></div>
@@ -432,8 +432,15 @@ function initAfterLoad(){
   // Set active camp: prefer the one marked active, else first
   const ac=DATA.camps.find(c=>c.isActive);
   activeCampId=ac?ac.id:DATA.camps[0].id;
-  const wesley=DATA.teachers.find(t=>t.loginEmail==='wesleychang2005@gmail.com');
-  whoId=wesley ? wesley.id : DATA.teachers[0].id;
+  
+  if (window.authUserEmail) {
+    const loggedIn = DATA.teachers.find(t=>t.loginEmail===window.authUserEmail);
+    if(loggedIn) whoId = loggedIn.id;
+    else whoId = DATA.teachers[0].id;
+  } else {
+    const wesley=DATA.teachers.find(t=>t.loginEmail==='wesleychang2005@gmail.com');
+    whoId=wesley ? wesley.id : DATA.teachers[0].id;
+  }
   // Data migration: migrate global notes to camp-specific profiles
   DATA.students.forEach(s=>{
     if(!s.campProfiles) s.campProfiles = {};
@@ -497,9 +504,10 @@ function renderTop(){
   const cs=document.getElementById('campSel');
   cs.innerHTML=DATA.camps.map(c=>'<option value="'+c.id+'"'+(c.id===activeCampId?' selected':'')+'>'+
     (SEASONS[c.season]||'')+' '+esc(c.label)+'</option>').join('');
-  // Teacher selector
-  const who=document.getElementById('whoSel');
-  who.innerHTML=DATA.teachers.map(t=>'<option value="'+t.id+'"'+(t.id===whoId?' selected':'')+'>'+esc(t.name)+'</option>').join('');
+  // Teacher identity label
+  const who=document.getElementById('loggerName');
+  const activeT=DATA.teachers.find(t=>t.id===whoId);
+  if(who) who.textContent=activeT?activeT.name:'—';
   // Nav tabs
   const nav=document.getElementById('nav');
   const tabs=[['home','Weekly Home'],['students','Student Roster'],['enroll','Enrollment'],['report','Report Export'],['stats','Stats'],['camps','Camps ⚙']];
@@ -1315,10 +1323,18 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 /* ============ Start ============ */
 if(BACKEND.isFirebase){
-  document.getElementById('main').innerHTML='<div class="empty"><b>Connecting to Firebase...</b></div>';
-  loadDataAsync().then(()=>render()).catch(e=>{
-    console.error('Firebase load error:',e);
-    document.getElementById('main').innerHTML='<div class="empty"><b>Firebase connection failed</b><br>'+e.message+'<br><br><button class="btn primary" onclick="location.reload()">Retry</button></div>';
+  document.getElementById('main').innerHTML='<div class="empty"><b>Authenticating...</b></div>';
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = '/auth/signin';
+      return;
+    }
+    window.authUserEmail = user.email;
+    document.getElementById('main').innerHTML='<div class="empty"><b>Connecting to Firebase...</b></div>';
+    loadDataAsync().then(()=>render()).catch(e=>{
+      console.error('Firebase load error:',e);
+      document.getElementById('main').innerHTML='<div class="empty"><b>Firebase connection failed</b><br>'+e.message+'<br><br><button class="btn primary" onclick="location.reload()">Retry</button></div>';
+    });
   });
 }else{
   loadData();

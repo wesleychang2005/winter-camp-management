@@ -3,17 +3,12 @@
     "rules": "firestore.rules"
   },
   "hosting": {
-    "public": "public",
+    "public": "out",
+    "cleanUrls": true,
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/camp_app.html"
-      }
     ]
   }
 }
