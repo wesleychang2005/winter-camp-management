@@ -1392,14 +1392,18 @@ if(BACKEND.isFirebase){
     
     (async () => {
       try {
+        window.lastStep = "init backend";
         await FirebaseBackend.init(); // Initialize first!
+        window.lastStep = "get user doc";
         const userRef = db.collection('users').doc(user.uid);
         const userDoc = await userRef.get();
         
+        window.lastStep = "determine status";
         const adminEmails = ['sherly@clc.edu.my', 'gennie@clc.edu.my', 'yitseng@clc.edu.my', 'arisha@clc.edu.my', 'connect@clc.edu.my', 'wesleychang2005@gmail.com'];
         let status = adminEmails.includes(user.email) ? 'admin' : 'pending';
         
         if (!userDoc.exists) {
+          window.lastStep = "set user doc";
           await userRef.set({
             email: user.email,
             status: status,
@@ -1418,11 +1422,13 @@ if(BACKEND.isFirebase){
         }
         
         document.getElementById('topBar').style.display = 'block';
+        window.lastStep = "loadDataAsync";
         await loadDataAsync();
+        window.lastStep = "render";
         render();
       } catch(e) {
         console.error('Firebase load error:', e);
-        document.getElementById('main').innerHTML='<div class="empty"><b>Firebase connection failed</b><br>'+e.message+'<br><br><button class="btn primary" onclick="location.reload()">Retry</button></div>';
+        document.getElementById('main').innerHTML='<div class="empty"><b>Firebase connection failed at step: ' + window.lastStep + '</b><br>'+e.message+'<br><br><button class="btn primary" onclick="location.reload()">Retry</button></div>';
       }
     })();
   });
